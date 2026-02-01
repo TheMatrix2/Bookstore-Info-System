@@ -34,7 +34,7 @@ jobs:
       uses: golangci/golangci-lint-action@v6
       with:
         version: latest
-        working-directory: ./backend
+        working-directory: ./
         args: --timeout=5m
     
     - name: Test
@@ -49,4 +49,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: go-info-system
-        path: backend/bin/app
+        path: ./bin/app
