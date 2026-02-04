@@ -14,20 +14,21 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-
+    
     steps:
       - uses: actions/checkout@v4
-
+    
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: backend/go.sum
-
+            go-version: ${{ env.GO_VERSION }}
+            cache-dependency-path: backend/go.sum
+    
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          working-directory: backend
-          args: --timeout=5m --path-prefix=
+            version: latest
+            working-directory: backend
+            args: --timeout=5m --path-prefix=
 
   test:
     name: Test & Coverage
