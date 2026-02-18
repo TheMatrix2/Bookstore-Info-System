@@ -1,3 +1,9 @@
 notes.txt
 .env
 migrations/sqlite/*
+.idea
+*.log
+*.db
+*.docx
+db_password.txt
+*.erd.json
