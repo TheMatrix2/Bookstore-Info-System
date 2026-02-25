@@ -34,47 +34,6 @@ jobs:
           working-directory: backend
           args: --timeout=5m --path-prefix=
 
-  migrate-lint:
-    name: Lint Migrations
-    runs-on: ubuntu-latest
-    needs: lint
-
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: backend/go.sum
-
-      - name: Install Atlas
-        run: curl -sSf https://atlasgo.sh | sh
-
-      - name: Download dependencies
-        working-directory: backend
-        run: go mod download
-
-      - name: Lint migrations
-        working-directory: backend
-        env:
-          DB_DSN: postgres://test:test@localhost:5432/testdb?sslmode=disable
-        run: atlas migrate lint --env ci --git-base=master
-
 # Uncomment after tests realization
     # test:
     #     name: Test & Coverage

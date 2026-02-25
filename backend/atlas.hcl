@@ -7,8 +7,7 @@ data "external_schema" "bun" {
 }
 
 env "local" {
-    src = data.external_schema.bun.url
-    dev = "docker://postgres/15/dev"
+    url = getenv("DB_DSN")
 
     migration {
         dir = "file://migrations"

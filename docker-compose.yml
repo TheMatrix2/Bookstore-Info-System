@@ -1,22 +1,37 @@
 services:
-     postgres:
+    postgres:
         image: postgres:latest
         ports:
             - "6432:5432"
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_DB: ${POSTGRES_DB}
-            # POSTRGRES_PASSWORD=${POSTRGRES_PASSWORD}
-            POSTGRES_PASSWORD: /run/secrets/db_password
-        secrets:
-            - db_password
-        
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready"]
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
             interval: 10s
             timeout: 5s
             retries: 5
-
-secrets:
-   db_password:
-     file: db_password.txt
+    
+    migrate:
+        build:
+            context: .
+            target: migrator
+        depends_on:
+            postgres:
+                condition: service_healthy
+        environment:
+            DB_DRIVER: ${DB_DRIVER}
+            DB_DSN: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    
+    app:
+        build:
+            context: .
+        environment:
+            DB_DRIVER: ${DB_DRIVER}
+            DB_DSN: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+        ports:
+            - "8080:8080"
+        depends_on:
+            migrate:
+                condition: service_completed_successfully
