@@ -1,8 +1,7 @@
-# version: "2"
+version: "2"
 
 run:
   timeout: 5m
-  allow-parallel-runners: true
 
 linters:
   enable:
@@ -13,4 +12,4 @@ linters:
     - unused
 
 issues:
-  fix: true
+  exclude-use-default: false
