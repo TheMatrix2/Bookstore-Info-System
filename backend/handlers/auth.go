@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -18,13 +19,13 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var request services.RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apperrors.RespondeError(c, apperrors.ErrBadRequest(err.Error()))
 		return
 	}
 
 	resp, err := h.authService.Register(c.Request.Context(), request)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		apperrors.RespondeError(c, err)
 		return
 	}
 
@@ -34,13 +35,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var request services.LoginRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apperrors.RespondeError(c, apperrors.ErrBadRequest(err.Error()))
 		return
 	}
 
 	resp, err := h.authService.Login(c.Request.Context(), request)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		apperrors.RespondeError(c, err)
 		return
 	}
 

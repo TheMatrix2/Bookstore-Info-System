@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/models"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -33,6 +34,22 @@ type AuthResponse struct {
 }
 
 func (s *AuthService) Register(ctx context.Context, req RegisterRequest) (*AuthResponse, error) {
+	model, err := s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, apperrors.ErrInternal(err)
+	}
+	if model != nil {
+		return nil, apperrors.ErrConflict("user with this email already exists")
+	}
+
+	model, err = s.userRepo.GetByUsername(ctx, req.Username)
+	if err != nil {
+		return nil, apperrors.ErrInternal(err)
+	}
+	if model != nil {
+		return nil, apperrors.ErrConflict("user with this username already exists")
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
