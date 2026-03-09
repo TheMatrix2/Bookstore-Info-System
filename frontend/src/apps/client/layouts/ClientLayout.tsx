@@ -422,7 +422,7 @@ export default function ClientLayout() {
 // ─── Demo / Preview ───────────────────────────────────────────────────────────
 function DemoPage() {
   return (
-    <ClientLayout>
+    <>
       {/* Hero section for preview */}
       <section
         style={{
@@ -533,7 +533,7 @@ function DemoPage() {
           </div>
         </div>
       </section>
-    </ClientLayout>
+    </>
   );
 }
 

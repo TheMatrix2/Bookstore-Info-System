@@ -5,7 +5,7 @@ WORKDIR /app
 
 RUN curl -sSf https://atlasgo.sh | sh
 
-COPY backend/go.mod backend/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY backend/ .

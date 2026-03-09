@@ -456,7 +456,7 @@ function DemoStats() {
   ];
 
   return (
-    <AdminLayout>
+    <>
       <div style={{ marginBottom: "32px" }}>
         <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "28px", fontWeight: 700, color: "#1C1410", marginBottom: "4px" }}>
           Добрый день, Администратор
@@ -493,7 +493,7 @@ function DemoStats() {
           </div>
         ))}
       </div>
-    </AdminLayout>
+    </>
   );
 }
 
