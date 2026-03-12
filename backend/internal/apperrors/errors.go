@@ -30,6 +30,10 @@ func ErrUnathorized(msg string) *AppError {
 	return &AppError{Code: http.StatusUnauthorized, Message: msg}
 }
 
+func ErrNotFound(msg string) *AppError {
+	return &AppError{Code: http.StatusNotFound, Message: msg}
+}
+
 func ErrInternal(err error) *AppError {
 	return &AppError{Code: http.StatusInternalServerError, Message: "internal server error", Err: err}
 }

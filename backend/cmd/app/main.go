@@ -23,24 +23,44 @@ func main() {
     }()
 
     // Dependency injection
+    // repositories
     userRepo    := repository.NewUserRepository(database)
+
+    // services
     authService := services.NewAuthService(userRepo)
+    userService := services.NewUserService(userRepo)
+
+    // handlers
     authHandler := handlers.NewAuthHandler(authService)
+    userHandler := handlers.NewUserHandler(userService)
 
     router := gin.Default()
 
-    // Публичные роуты
+    // public routes
     public := router.Group("/api/v1")
     {
         public.POST("/auth/register", authHandler.Register)
         public.POST("/auth/login",    authHandler.Login)
     }
 
-    // Защищённые роуты
+    // private routes for customers
     private := router.Group("/api/v1")
-    private.Use(middleware.AuthMiddleware())
+    private.Use(middleware.AuthMiddleware(), middleware.RequireRoles(&[]string{repository.CUSTOMER_ROLE}))
     {
-        // private.GET("/profile", profileHandler.Get)
+        private.GET("/profile", userHandler.GetByID)
+        private.PUT("/users/:id", userHandler.Update)
+
+    }
+
+    // private routes for employees
+    employee := router.Group("/api/v1")
+    employee.Use(middleware.AuthMiddleware(), middleware.RequireRoles(&repository.EMPLOYEE_ROLES))
+    {
+        employee.GET("/users/customers", userHandler.GetAllCustomers)
+        employee.GET("/users/employees", userHandler.GetAllEmployees)
+        employee.GET("/profile", userHandler.GetByID)
+        employee.PUT("/users/:id", userHandler.Update)
+        employee.DELETE("/users/:id", userHandler.Delete)
     }
 
     if err := router.Run(":8080"); err != nil {
