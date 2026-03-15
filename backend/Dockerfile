@@ -8,11 +8,11 @@ RUN curl -sSf https://atlasgo.sh | sh
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY backend/ .
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -o app ./cmd/app
 
-# ---------- migration stage ---------
+# ---------- migration stage ----------
 FROM gcr.io/distroless/base-debian12 AS migrator
 
 WORKDIR /app
