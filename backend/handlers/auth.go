@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,7 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	var request services.RegisterRequest
+	var request dto.RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		apperrors.RespondeError(c, apperrors.ErrBadRequest(err.Error()))
 		return
@@ -33,7 +34,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	var request services.LoginRequest
+	var request dto.LoginRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		apperrors.RespondeError(c, apperrors.ErrBadRequest(err.Error()))
 		return

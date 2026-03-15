@@ -4,16 +4,17 @@ import (
 	"net/http"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
-	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/services"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/interfaces"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type UserHandler struct {
-	userService *services.UserService
+	userService interfaces.UserServiceInterface
 }
 
-func NewUserHandler(userService *services.UserService) *UserHandler {
+func NewUserHandler(userService interfaces.UserServiceInterface) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
@@ -56,7 +57,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var request services.UpdateUserRequest
+	var request dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		apperrors.RespondeError(c, apperrors.ErrBadRequest(err.Error()))
 		return

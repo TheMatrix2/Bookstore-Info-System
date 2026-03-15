@@ -4,23 +4,18 @@ import (
 	"context"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/interfaces"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/models"
-	"github.com/TheMatrix2/Bookstore-Info-System/backend/repository"
 	"github.com/google/uuid"
 )
 
 type UserService struct {
-	userRepo *repository.UserRepository
+	userRepo interfaces.UserRepositoryInterface
 }
 
-func NewUserService(userRepo *repository.UserRepository) *UserService {
+func NewUserService(userRepo interfaces.UserRepositoryInterface) *UserService {
 	return &UserService{userRepo: userRepo}
-}
-
-type UpdateUserRequest struct {
-	Username string `json:"username" validate:"required,min=3,max=50"`
-	Email    string `json:"email" validate:"required,email"`
-	Phone   *string `json:"phone,omitempty" validate:"e164"`
 }
 
 func (s *UserService) GetAllCustomers(ctx context.Context) ([]models.User, error) {
@@ -47,7 +42,7 @@ func (s *UserService) GetByID(ctx context.Context, id uuid.UUID) (*models.User, 
 	return user, nil
 }
 
-func (s *UserService) Update(ctx context.Context, id uuid.UUID, req UpdateUserRequest) (*models.User, error) {
+func (s *UserService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateUserRequest) (*models.User, error) {
     user, err := s.userRepo.GetByID(ctx, id)
     if err != nil {
         return nil, apperrors.ErrNotFound("user not found")

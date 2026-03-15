@@ -5,36 +5,21 @@ import (
 	"fmt"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/interfaces"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/models"
-	"github.com/TheMatrix2/Bookstore-Info-System/backend/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	userRepo *repository.UserRepository
+	userRepo interfaces.UserRepositoryInterface
 }
 
-func NewAuthService(userRepo *repository.UserRepository) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepositoryInterface) *AuthService {
 	return &AuthService{userRepo: userRepo}
 }
 
-type RegisterRequest struct {
-	Username string `json:"username" validate:"required,min=3,max=50"`
-	Email    string `json:"email" validate:"required,email"`
-	Phone	*string `json:"phone,omitempty" validate:"e164"`
-	Password string `json:"password" validate:"required,min=6"`
-}
-
-type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
-type AuthResponse struct {
-    Token 	string 	`json:"token"`
-}
-
-func (s *AuthService) Register(ctx context.Context, req RegisterRequest) (*AuthResponse, error) {
+func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*dto.AuthResponse, error) {
 	model, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, apperrors.ErrInternal(err)
@@ -78,10 +63,10 @@ func (s *AuthService) Register(ctx context.Context, req RegisterRequest) (*AuthR
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &AuthResponse{Token: token}, nil
+	return &dto.AuthResponse{Token: token}, nil
 }
 
-func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*AuthResponse, error) {
+func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials: %w", err)
@@ -101,5 +86,5 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*AuthRespons
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &AuthResponse{Token: token}, nil
+	return &dto.AuthResponse{Token: token}, nil
 }
