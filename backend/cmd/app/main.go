@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/handlers"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/db"
@@ -22,12 +24,20 @@ func main() {
         }
     }()
 
+    // read config from env
+    jwtSecret := os.Getenv("JWT_SECRET")
+    jwtExpiration, err := strconv.Atoi(os.Getenv("JWT_EXPIRATION"))
+    if err != nil {
+        log.Fatalf("failed to parse JWT expiration: %v", err)
+    }
+
     // Dependency injection
     // repositories
     userRepo    := repository.NewUserRepository(database)
 
     // services
-    authService := services.NewAuthService(userRepo)
+    jwtService := services.NewJWTService(jwtSecret, jwtExpiration)
+    authService := services.NewAuthService(userRepo, jwtService)
     userService := services.NewUserService(userRepo)
 
     // handlers
@@ -45,7 +55,7 @@ func main() {
 
     // private routes for customers
     private := router.Group("/api/v1")
-    private.Use(middleware.AuthMiddleware(), middleware.RequireRoles(&[]string{repository.CUSTOMER_ROLE}))
+    private.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRoles(&[]string{repository.CUSTOMER_ROLE}))
     {
         private.GET("/profile", userHandler.GetByID)
         private.PUT("/users/:id", userHandler.Update)
@@ -54,7 +64,7 @@ func main() {
 
     // private routes for employees
     employee := router.Group("/api/v1")
-    employee.Use(middleware.AuthMiddleware(), middleware.RequireRoles(&repository.EMPLOYEE_ROLES))
+    employee.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRoles(&repository.EMPLOYEE_ROLES))
     {
         employee.GET("/users/customers", userHandler.GetAllCustomers)
         employee.GET("/users/employees", userHandler.GetAllEmployees)

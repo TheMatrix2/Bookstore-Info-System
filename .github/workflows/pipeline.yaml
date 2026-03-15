@@ -79,7 +79,7 @@ jobs:
           - name: Run tests
             working-directory: backend
             run: |
-                go test ./... -race \                                                                                                                                                 ─╯
+                go test ./... -race \
                 -coverprofile=coverage.out \
                 -coverpkg=./handlers/...,./internal/...
   

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(jwtService *services.JWTService) gin.HandlerFunc {
 	return func (c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" || !strings.HasPrefix(header, "Bearer ") {
@@ -17,7 +17,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(header, "Bearer ")
-		claims, err := services.ValidateToken(tokenString)
+		claims, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return

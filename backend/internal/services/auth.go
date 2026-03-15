@@ -13,10 +13,11 @@ import (
 
 type AuthService struct {
 	userRepo interfaces.UserRepositoryInterface
+	jwtService *JWTService
 }
 
-func NewAuthService(userRepo interfaces.UserRepositoryInterface) *AuthService {
-	return &AuthService{userRepo: userRepo}
+func NewAuthService(userRepo interfaces.UserRepositoryInterface, jwtService *JWTService) *AuthService {
+	return &AuthService{userRepo: userRepo, jwtService: jwtService}
 }
 
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*dto.AuthResponse, error) {
@@ -58,7 +59,7 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	token, err := GenerateToken(user.ID, role.Name)
+	token, err := s.jwtService.GenerateToken(user.ID, role.Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
@@ -81,7 +82,7 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.Aut
 		role = user.Role.Name
 	}
 
-	token, err := GenerateToken(user.ID, role)
+	token, err := s.jwtService.GenerateToken(user.ID, role)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
