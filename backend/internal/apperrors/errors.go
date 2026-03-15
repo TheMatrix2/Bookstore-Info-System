@@ -26,7 +26,7 @@ func ErrConflict(msg string) *AppError {
 	return &AppError{Code: http.StatusConflict, Message: msg}
 }
 
-func ErrUnathorized(msg string) *AppError {
+func ErrUnauthorized(msg string) *AppError {
 	return &AppError{Code: http.StatusUnauthorized, Message: msg}
 }
 

@@ -5,15 +5,15 @@ import (
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
-	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/services"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	authService *services.AuthService
+	authService interfaces.AuthServiceInterface
 }
 
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
+func NewAuthHandler(authService interfaces.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
