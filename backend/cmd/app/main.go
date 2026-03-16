@@ -34,15 +34,18 @@ func main() {
     // Dependency injection
     // repositories
     userRepo    := repository.NewUserRepository(database)
+    authorRepo  := repository.NewAuthorRepository(database)
 
     // services
     jwtService := services.NewJWTService(jwtSecret, jwtExpiration)
     authService := services.NewAuthService(userRepo, jwtService)
     userService := services.NewUserService(userRepo)
+    authorService := services.NewAuthorService(authorRepo)
 
     // handlers
     authHandler := handlers.NewAuthHandler(authService)
     userHandler := handlers.NewUserHandler(userService)
+    authorHandler := handlers.NewAuthorHandler(authorService)
 
     router := gin.Default()
 
@@ -51,6 +54,8 @@ func main() {
     {
         public.POST("/auth/register", authHandler.Register)
         public.POST("/auth/login",    authHandler.Login)
+        public.GET("/authors/:id",   authorHandler.GetByID)
+        public.GET("/authors",       authorHandler.GetAll)
     }
 
     // private routes
@@ -68,6 +73,9 @@ func main() {
         employee.GET("/users/customers", userHandler.GetAllCustomers)
         employee.GET("/users/employees", userHandler.GetAllEmployees)
         employee.DELETE("/users/:id", userHandler.Delete)
+        employee.POST("/authors", authorHandler.Create)
+        employee.PUT("/authors/:id", authorHandler.Update)
+        employee.DELETE("/authors/:id", authorHandler.Delete)
     }
 
     if err := router.Run(":8080"); err != nil {
