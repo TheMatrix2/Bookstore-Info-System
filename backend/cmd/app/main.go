@@ -53,13 +53,12 @@ func main() {
         public.POST("/auth/login",    authHandler.Login)
     }
 
-    // private routes for customers
+    // private routes
     private := router.Group("/api/v1")
-    private.Use(middleware.AuthMiddleware(jwtService), middleware.RequireRoles(&[]string{repository.CUSTOMER_ROLE}))
+    private.Use(middleware.AuthMiddleware(jwtService))
     {
         private.GET("/profile", userHandler.GetByID)
         private.PUT("/users/:id", userHandler.Update)
-
     }
 
     // private routes for employees
@@ -68,8 +67,6 @@ func main() {
     {
         employee.GET("/users/customers", userHandler.GetAllCustomers)
         employee.GET("/users/employees", userHandler.GetAllEmployees)
-        employee.GET("/profile", userHandler.GetByID)
-        employee.PUT("/users/:id", userHandler.Update)
         employee.DELETE("/users/:id", userHandler.Delete)
     }
 
