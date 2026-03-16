@@ -38,6 +38,7 @@ type Author struct {
 	Surname    	string    	`bun:"surname,notnull"`
 	Name       	string    	`bun:"name,notnull"`
 	Patronymic 	string    	`bun:"patronymic,notnull"`
+	Info	   	*string		`bun:"info"`
 
 	Books 		[]*Book 	`bun:"rel:has-many,join:id=author_id"`
 }

@@ -7,7 +7,9 @@ data "external_schema" "bun" {
 }
 
 env "local" {
+    src = data.external_schema.bun.url
     url = getenv("DB_DSN")
+    dev-url = getenv("DB_DEV_DSN")
 
     migration {
         dir = "file://migrations"
