@@ -35,17 +35,20 @@ func main() {
     // repositories
     userRepo    := repository.NewUserRepository(database)
     authorRepo  := repository.NewAuthorRepository(database)
+    publisherRepo := repository.NewPublisherRepository(database)
 
     // services
     jwtService := services.NewJWTService(jwtSecret, jwtExpiration)
     authService := services.NewAuthService(userRepo, jwtService)
     userService := services.NewUserService(userRepo)
     authorService := services.NewAuthorService(authorRepo)
+    publisherService := services.NewPublisherService(publisherRepo)
 
     // handlers
     authHandler := handlers.NewAuthHandler(authService)
     userHandler := handlers.NewUserHandler(userService)
     authorHandler := handlers.NewAuthorHandler(authorService)
+    publisherHandler := handlers.NewPublisherHandler(publisherService)
 
     router := gin.Default()
 
@@ -56,6 +59,8 @@ func main() {
         public.POST("/auth/login",    authHandler.Login)
         public.GET("/authors/:id",   authorHandler.GetByID)
         public.GET("/authors",       authorHandler.GetAll)
+        public.GET("/publishers/:id",   publisherHandler.GetByID)
+        public.GET("/publishers",       publisherHandler.GetAll)
     }
 
     // private routes
@@ -76,6 +81,9 @@ func main() {
         employee.POST("/authors", authorHandler.Create)
         employee.PUT("/authors/:id", authorHandler.Update)
         employee.DELETE("/authors/:id", authorHandler.Delete)
+        employee.POST("/publishers", publisherHandler.Create)
+        employee.PUT("/publishers/:id", publisherHandler.Update)
+        employee.DELETE("/publishers/:id", publisherHandler.Delete)
     }
 
     if err := router.Run(":8080"); err != nil {
