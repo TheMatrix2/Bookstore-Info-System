@@ -37,7 +37,7 @@ func (r *PublisherRepository) GetAll(ctx context.Context) ([]models.Publisher, e
 	return publishers, err
 }
 
-func (r *PublisherRepository) Update(ctx context.Context, publisher *models.Author) error {
+func (r *PublisherRepository) Update(ctx context.Context, publisher *models.Publisher) error {
 	_, err := r.db.NewUpdate().Model(publisher).Where("id = ?", publisher.ID).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update publisher: %W", err)
