@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
@@ -12,7 +14,7 @@ import (
 )
 
 type AuthService struct {
-	userRepo interfaces.UserRepositoryInterface
+	userRepo   interfaces.UserRepositoryInterface
 	jwtService interfaces.JWTServiceInterface
 }
 
@@ -21,19 +23,19 @@ func NewAuthService(userRepo interfaces.UserRepositoryInterface, jwtService inte
 }
 
 func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*dto.AuthResponse, error) {
-	model, err := s.userRepo.GetByEmail(ctx, req.Email)
-	if err != nil {
+	existing, err := s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, apperrors.ErrInternal(err)
 	}
-	if model != nil {
+	if existing != nil {
 		return nil, apperrors.ErrConflict("user with this email already exists")
 	}
 
-	model, err = s.userRepo.GetByUsername(ctx, req.Username)
-	if err != nil {
+	existing, err = s.userRepo.GetByUsername(ctx, req.Username)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, apperrors.ErrInternal(err)
 	}
-	if model != nil {
+	if existing != nil {
 		return nil, apperrors.ErrConflict("user with this username already exists")
 	}
 
@@ -43,19 +45,18 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	role, err := s.userRepo.GetRoleByName(ctx, "user")
-    if err != nil {
-        return nil, fmt.Errorf("failed to get role: %w", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("failed to get role: %w", err)
+	}
 
 	user := &models.User{
-		Username: 		req.Username,
-		Email:    		req.Email,
-		PasswordHash: 	string(hash),
-		RoleID: 		role.ID,
+		Username:     req.Username,
+		Email:        req.Email,
+		PasswordHash: string(hash),
+		RoleID:       role.ID,
 	}
-	
-	err = s.userRepo.Create(ctx, user)
-	if err != nil {
+
+	if err = s.userRepo.Create(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -70,11 +71,11 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, fmt.Errorf("invalid credentials: %w", err)
+		return nil, apperrors.ErrUnauthorized("invalid credentials")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		return nil, fmt.Errorf("invalid password: %w", err)
+		return nil, apperrors.ErrUnauthorized("invalid credentials")
 	}
 
 	role := ""

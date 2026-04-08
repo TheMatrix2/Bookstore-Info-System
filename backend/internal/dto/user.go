@@ -1,21 +1,21 @@
 package dto
 
 type UpdateUserRequest struct {
-    Username string  `json:"username" validate:"required,min=3,max=50"`
-    Email    string  `json:"email"    validate:"required,email"`
-    Phone    *string `json:"phone,omitempty" validate:"e164"`
+    Username string  `json:"username"`
+    Email    string  `json:"email" validate:"email"`
+    Phone    *string `json:"phone" validate:"e164"`
 }
 
 type RegisterRequest struct {
-    Username string  `json:"username" validate:"required,min=3,max=50"`
-    Email    string  `json:"email"    validate:"required,email"`
-    Phone    *string `json:"phone,omitempty" validate:"e164"`
-    Password string  `json:"password" validate:"required,min=6"`
+    Username string  `json:"username"`
+    Email    string  `json:"email" validate:"email"`
+    Phone    *string `json:"phone" validate:"e164"`
+    Password string  `json:"password"`
 }
 
 type LoginRequest struct {
-    Email    string `json:"email"    validate:"required,email"`
-    Password string `json:"password" validate:"required"`
+    Email    string `json:"email"`
+    Password string `json:"password"`
 }
 
 type AuthResponse struct {

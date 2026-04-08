@@ -18,15 +18,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupRouter(h *handlers.UserHandler) *gin.Engine {
+func setupRouter(h *handlers.UserHandler, middleware ...gin.HandlerFunc) *gin.Engine {
     gin.SetMode(gin.TestMode)
     r := gin.New()
     r.GET("/users/customers", h.GetAllCustomers)
     r.GET("/users/employees", h.GetAllEmployees)
-    r.GET("/users/:id", h.GetByID)
+    r.GET("/profile", append(middleware, h.GetProfile)...)
     r.PUT("/users/:id", h.Update)
     r.DELETE("/users/:id", h.Delete)
     return r
+}
+
+func setUserID(id uuid.UUID) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        c.Set("user_id", id)
+        c.Next()
+    }
 }
 
 // --- GetAllCustomers ---
@@ -62,6 +69,47 @@ func TestHandler_GetAllCustomers_Error(t *testing.T) {
     r.ServeHTTP(w, req)
 
     assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+// --- GetProfile ---
+
+func TestHandler_GetProfile_Success(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    mockSvc := mocks.NewMockUserServiceInterface(ctrl)
+    h := handlers.NewUserHandler(mockSvc)
+
+    id := uuid.New()
+    phone := "89123456789"
+    expected := &models.User{ID: id, Username: "alice", Email: "alice@mail.ru", Phone: &phone}
+
+    r := setupRouter(h, setUserID(id))
+    w := httptest.NewRecorder()
+    req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+
+    var result models.User
+    err := json.Unmarshal(w.Body.Bytes(), &result)
+    assert.NoError(t, err)
+    assert.Equal(t, expected.ID, result.ID)
+    assert.Equal(t, expected.Username, result.Username)
+    assert.Equal(t, expected.Email, result.Email)
+    assert.Equal(t, expected.Phone, result.Phone)
+}
+
+func TestHandler_GetProfile_NotFound(t *testing.T) {
+    ctrl := gomock.NewController(t)
+    mockSvc := mocks.NewMockUserServiceInterface(ctrl)
+    h := handlers.NewUserHandler(mockSvc)
+
+    id := uuid.New()
+    r := setupRouter(h, setUserID(id))
+    w := httptest.NewRecorder()
+    req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+    r.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 // --- GetByID ---
