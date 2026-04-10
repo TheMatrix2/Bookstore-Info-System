@@ -78,7 +78,7 @@ func main() {
     private := router.Group("/api/v1")
     private.Use(middleware.AuthMiddleware(jwtService))
     {
-        private.GET("/profile",     userHandler.GetProfile)
+        private.GET("/users/:id",   userHandler.GetProfile)
         private.PUT("/users/:id",   userHandler.Update)
     }
 
