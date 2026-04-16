@@ -5,10 +5,29 @@ import { apiFetch } from "../../../shared/api";
 import { useNavigate } from "react-router-dom";
 
 interface User {
-  id: string;
   username: string;
   email: string;
   phone: string | null;
+}
+
+function mapUserFromApi(raw: any): User {
+  return {
+    username: raw.Username,
+    email: raw.Email,
+    phone: raw.Phone,
+  };
+}
+
+function mapUserToApi(user: {
+  username: string;
+  email: string;
+  phone: string | null;
+}) {
+  return {
+    Username: user.username,
+    Email: user.email,
+    Phone: user.phone,
+  };
 }
 
 export default function ClientProfilePage() {
@@ -35,8 +54,8 @@ export default function ClientProfilePage() {
 
     const fetchUser = async () => {
       try {
-        const data: User = await apiFetch(`/users/${id}`, {}, token);
-
+        const raw = await apiFetch(`/users/${id}`, { method: "GET" }, token);
+        const data = mapUserFromApi(raw);
         setUser(data);
         setUsername(data.username);
         setEmail(data.email);
@@ -58,14 +77,21 @@ export default function ClientProfilePage() {
     setSaveError("");
     setSaveSuccess(false);
     try {
-      const updated: User = await apiFetch(
+      const payload = mapUserToApi({
+        username,
+        email,
+        phone: phone || null,
+      });
+
+      const updatedRaw = await apiFetch(
         `/users/${id}`,
         {
           method: "PUT",
-          body: JSON.stringify({ username, email, phone: phone || null }),
+          body: JSON.stringify(payload),
         },
         token
       );
+      const updated = mapUserFromApi(updatedRaw);
       setUser(updated);
       setEditing(false);
       setSaveSuccess(true);
