@@ -66,7 +66,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*models.
 	err := r.db.NewSelect().
 		Model(user).
 		Relation("Role").
-		Where("\"user\".\"email\" = ?", email).
+		Where("email = ?", email).
 		Scan(ctx)
 	if err != nil {
 		return nil, err

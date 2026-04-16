@@ -1,36 +1,50 @@
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import ToastProvider from "./shared/ToastProvider";
-// import ClientLayout from "./apps/client/layouts/ClientLayout";
-// import AdminLayout from "./apps/admin/layouts/AdminLayout";
-// import AdminLoginPage from "./apps/admin/pages/LoginPage";
-// import AdminProfilePage from "./apps/admin/pages/ProfilePage";
-// import HomePage from "./apps/client/pages/HomePage";
-// import ProfilePage from "./apps/client/pages/ProfilePage";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ClientLayout from "./apps/client/layouts/clientLayout";
+import AdminLayout from "./apps/admin/layouts/adminLayout";
+import AdminLoginPage from "./apps/admin/pages/loginPage";
+import AdminProfilePage from "./apps/admin/pages/profilePage";
+import HomePage from "./apps/client/pages/homePage";
+import ClientProfilePage from "./apps/client/pages/profilePage";
+import { useAuthStore } from "./shared/authStore";
 
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <ToastProvider>
-//         <Routes>
-//           {/* Admin — отдельная страница логина без лэйаута */}
-//           <Route path="/admin/login" element={<AdminLoginPage />} />
+function AdminGuard({ children }: { children: React.ReactNode }) {
+  const { token, role } = useAuthStore();
+  const allowed = ["admin", "manager", "delivery", "support"];
+  if (!token || !role || !allowed.includes(role)) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return <>{children}</>;
+}
 
-//           {/* Admin — всё остальное внутри AdminLayout */}
-//           <Route path="/admin" element={<AdminLayout />}>
-//             <Route path="profile" element={<AdminProfilePage />} />
-//             {/* будущие роуты: orders, books, users и т.д. */}
-//           </Route>
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Admin login — without layout */}
+        <Route path="/admin/login" element={<AdminLoginPage />} />
 
-//           {/* Client routes */}
-//           <Route path="/" element={<ClientLayout />}>
-//             <Route index element={<HomePage />} />
-//             <Route path="profile" element={<ProfilePage />} />
-//           </Route>
+        {/* Admin panel — with sidebar layout, protected */}
+        <Route
+          path="/admin"
+          element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }
+        >
+          <Route index element={<Navigate to="profile" replace />} />
+          <Route path="profile" element={<AdminProfilePage />} />
+        </Route>
 
-//           {/* Fallback */}
-//           <Route path="*" element={<ClientLayout />} />
-//         </Routes>
-//       </ToastProvider>
-//     </BrowserRouter>
-//   );
-// }
+        {/* Client routes */}
+        <Route path="/" element={<ClientLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="profile" element={<ClientProfilePage />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

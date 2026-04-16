@@ -71,11 +71,11 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, apperrors.ErrUnauthorized("invalid credentials")
+		return nil, apperrors.ErrUnauthorized("email not found")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		return nil, apperrors.ErrUnauthorized("invalid credentials")
+		return nil, apperrors.ErrUnauthorized("invalid password")
 	}
 
 	role := ""

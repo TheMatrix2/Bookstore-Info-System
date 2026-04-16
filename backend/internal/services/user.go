@@ -37,7 +37,7 @@ func (s *UserService) GetAllEmployees(ctx context.Context) ([]models.User, error
 func (s *UserService) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, apperrors.ErrNotFound("user not found")
+		return nil, apperrors.ErrNotFound("user not found: " + err.Error())
 	}
 	return user, nil
 }
