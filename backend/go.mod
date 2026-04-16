@@ -9,12 +9,14 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.11.2
 	github.com/stretchr/testify v1.11.1
-	github.com/uptrace/bun v1.2.16
-	github.com/uptrace/bun/dialect/pgdialect v1.2.16
+	github.com/uptrace/bun v1.2.15
+	github.com/uptrace/bun/dialect/pgdialect v1.2.15
 	golang.org/x/crypto v0.48.0
 )
 
 require (
+	ariga.io/atlas v0.36.2-0.20250801020723-2aaaf0682dd9 // indirect
+	ariga.io/atlas-provider-bun v0.0.3 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
@@ -41,6 +43,10 @@ require (
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
+	github.com/uptrace/bun/dialect/mssqldialect v1.2.15 // indirect
+	github.com/uptrace/bun/dialect/mysqldialect v1.2.15 // indirect
+	github.com/uptrace/bun/dialect/oracledialect v1.2.15 // indirect
+	github.com/uptrace/bun/dialect/sqlitedialect v1.2.15 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect

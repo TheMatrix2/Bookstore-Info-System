@@ -22,6 +22,8 @@ func (s *PublisherService) Create(ctx context.Context, input dto.PublisherInput)
 	publisher := &models.Publisher{
 		Name: input.Name,
 		Address: input.Address,
+		Email: input.Email,
+		Website: input.Website,
 	}
 	if err := s.repo.Create(ctx, publisher); err != nil {
 		return nil, apperrors.ErrInternal(err)

@@ -49,6 +49,8 @@ type Publisher struct {
 	ID      uuid.UUID 	`bun:"id,pk,type:uuid,default:gen_random_uuid()"`
 	Name    string    	`bun:"name,unique,notnull"`
 	Address	string    	`bun:"address,notnull"`
+	Email   string    	`bun:"email,notnull"`
+	Website *string   	`bun:"website"`
 
 	Books 	[]*Book 	`bun:"rel:has-many,join:id=publisher_id"`
 }
