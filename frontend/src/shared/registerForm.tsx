@@ -13,6 +13,7 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
 
   const [regUsername, setRegUsername] = useState('');
   const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regPasswordConfirm, setRegPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +21,7 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
   const [touched, setTouched] = useState({
     username: false,
     email: false,
+    phone: false,
     password: false,
     confirm: false,
   });
@@ -52,6 +54,12 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
     : !/^\S+@\S+\.\S+$/.test(regEmail)
     ? 'Некорректный email'
     : null;
+  
+  const phoneError = !regPhone
+    ? 'Введите номер телефона'
+    : !/^\+?\d{10,15}$/.test(regPhone)
+    ? 'Некорректный номер телефона'
+    : null;
 
   const passwordError = !regPassword
     ? 'Введите пароль'
@@ -66,7 +74,7 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
     : null;
 
   const isFormValid =
-    !usernameError && !emailError && !passwordError && !confirmError;
+    !usernameError && !emailError && !phoneError && !passwordError && !confirmError;
 
   const handleRegister = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,6 +82,7 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
     setTouched({
       username: true,
       email: true,
+      phone: true,
       password: true,
       confirm: true,
     });
@@ -90,6 +99,7 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
         body: JSON.stringify({
           username: regUsername,
           email: regEmail,
+          phone: regPhone,
           password: regPassword,
         }),
       });
@@ -139,6 +149,22 @@ export default function RegisterForm({ onHide }: RegisterFormProps) {
         </FloatingLabel>
         <Form.Control.Feedback type="invalid">
           {emailError}
+        </Form.Control.Feedback>
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <FloatingLabel label="Телефон">
+          <Form.Control
+            type="tel"
+            value={regPhone}
+            onChange={(e) => setRegPhone(e.target.value)}
+            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+            isInvalid={touched.phone && !!phoneError}
+            placeholder="+1234567890"
+          />
+        </FloatingLabel>
+        <Form.Control.Feedback type="invalid">
+          {phoneError}
         </Form.Control.Feedback>
       </Form.Group>
 
