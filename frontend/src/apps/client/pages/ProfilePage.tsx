@@ -3,12 +3,7 @@ import { Container, Card, Button, Form, Alert, Spinner, Row, Col } from "react-b
 import { useAuthStore } from "../../../shared/authStore";
 import { apiFetch } from "../../../shared/api";
 import { useNavigate } from "react-router-dom";
-
-interface User {
-  username: string;
-  email: string;
-  phone: string | null;
-}
+import type User from "../../../interfaces/user";
 
 function mapUserFromApi(raw: any): User {
   return {
