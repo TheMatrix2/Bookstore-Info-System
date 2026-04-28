@@ -30,6 +30,9 @@ export default function ClientLayout() {
                 <Nav.Link as={Link} to="/publishers">
                     Издательства
                 </Nav.Link>
+                <Nav.Link as={Link} to="/authors">
+                    Авторы
+                </Nav.Link>
                 </Nav>
                 <Nav>
                 {token ? (

@@ -7,6 +7,7 @@ import HomePage from "./apps/client/pages/homePage";
 import ClientProfilePage from "./apps/client/pages/profilePage";
 import { useAuthStore } from "./shared/authStore";
 import PublishersPage from "./apps/client/pages/publishersPage";
+import AuthorsPage from "./apps/client/pages/authorsPage";
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { token, role } = useAuthStore();
@@ -42,6 +43,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="profile" element={<ClientProfilePage />} />
           <Route path="publishers" element={<PublishersPage />} />
+          <Route path="authors" element={<AuthorsPage />} />
         </Route>
 
         {/* Fallback */}
