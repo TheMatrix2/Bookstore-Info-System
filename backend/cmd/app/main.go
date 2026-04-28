@@ -38,6 +38,7 @@ func main() {
     publisherRepo       := repository.NewPublisherRepository(database)
     categoryRepo        := repository.NewCategoryRepository(database)
     bookRepo            := repository.NewBookRepository(database)
+    cartRepo            := repository.NewCartRepository(database)
 
     // services
     jwtService          := services.NewJWTService(jwtSecret, jwtExpiration)
@@ -47,6 +48,7 @@ func main() {
     publisherService    := services.NewPublisherService(publisherRepo)
     categoryService     := services.NewCategoryService(categoryRepo)
     bookService         := services.NewBookService(bookRepo)
+    cartService         := services.NewCartService(cartRepo)
 
     // handlers
     authHandler         := handlers.NewAuthHandler(authService)
@@ -55,6 +57,7 @@ func main() {
     publisherHandler    := handlers.NewPublisherHandler(publisherService)
     categoryHandler     := handlers.NewCategoryHandler(categoryService)
     bookHandler         := handlers.NewBookHandler(bookService)
+    cartHandler         := handlers.NewCartHandler(cartService)
 
     router := gin.Default()
 
@@ -80,6 +83,11 @@ func main() {
     {
         private.GET("/users/:id",   userHandler.GetProfile)
         private.PUT("/users/:id",   userHandler.Update)
+        private.GET("/cart",        cartHandler.GetCart)
+        private.POST("/cart/items", cartHandler.AddItem)
+        private.PUT("/cart/items/:book_id", cartHandler.UpdateItem)
+        private.DELETE("/cart/items/:book_id", cartHandler.RemoveItem)
+        private.DELETE("/cart", cartHandler.ClearCart)
     }
 
     // private routes for employees

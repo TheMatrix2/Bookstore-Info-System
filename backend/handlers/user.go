@@ -6,6 +6,7 @@ import (
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/interfaces"
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/parsers"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -19,14 +20,8 @@ func NewUserHandler(userService interfaces.UserServiceInterface) *UserHandler {
 }
 
 func (h *UserHandler) GetProfile(c *gin.Context) {
-	raw, exists := c.Get("user_id")
+	id, exists := parsers.UserIDFromContext(c)
 	if !exists {
-		apperrors.RespondeError(c, apperrors.ErrUnauthorized("missing user_id in token"))
-		return
-	}
-	id, ok := raw.(uuid.UUID)
-	if !ok {
-		apperrors.RespondeError(c, apperrors.ErrUnauthorized("invalid user_id in token"))
 		return
 	}
 	user, err := h.userService.GetByID(c.Request.Context(), id)
