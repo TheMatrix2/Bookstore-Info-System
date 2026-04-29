@@ -1,17 +1,14 @@
 import { useState, useEffect } from "react";
-import { Card, Button, Form, Alert, Spinner, Row, Col } from "react-bootstrap";
+import { Card, Button, Form, Alert, Spinner, Row, Col, Container } from "react-bootstrap";
 import { useAuthStore } from "../../../shared/authStore";
 import { apiFetch } from "../../../shared/api";
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  phone: string | null;
-}
+import type User from "../../../interfaces/user";
+import { mapUserFromApi, mapUserToApi } from "../../../mappers/user";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminProfilePage() {
-  const { token } = useAuthStore();
+  const { token, id } = useAuthStore();
+  const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,33 +23,48 @@ export default function AdminProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    apiFetch(`/users/${user.id}`, {}, token)
-      .then((data: User) => {
+    if (!token || !id) return;
+
+    const fetchUser = async () => {
+      try {
+        const raw = await apiFetch(`/users/${id}`, { method: "GET" }, token);
+        const data = mapUserFromApi(raw);
         setUser(data);
         setUsername(data.username);
         setEmail(data.email);
         setPhone(data.phone ?? "");
-      })
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ошибка загрузки");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  async function handleSave(e: React.FormEvent) {
+    fetchUser();
+  }, [token, id, navigate]);
+
+  async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
     setSaveError("");
     setSaveSuccess(false);
     try {
-      const updated: User = await apiFetch(
-        `/users/${user.id}`,
+      const payload = mapUserToApi({
+        username,
+        email,
+        phone: phone || null,
+      });
+
+      const updatedRaw = await apiFetch(
+        `/users/${id}`,
         {
           method: "PUT",
-          body: JSON.stringify({ username, email, phone: phone || null }),
+          body: JSON.stringify(payload),
         },
         token
       );
+      const updated = mapUserFromApi(updatedRaw);
       setUser(updated);
       setEditing(false);
       setSaveSuccess(true);
@@ -63,8 +75,21 @@ export default function AdminProfilePage() {
     }
   }
 
-  if (loading) return <Spinner animation="border" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  if (loading) {
+    return (
+      <Container className="py-5 text-center">
+        <Spinner animation="border" />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Row className="justify-content-start">

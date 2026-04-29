@@ -31,7 +31,7 @@ export default function AdminLayout() {
             <Nav className="flex-column border-end pe-3" style={{ minHeight: "80vh" }}>
               <Nav.Item>
                 <NavLink
-                  to="/admin/profile"
+                  to="/admin"
                   className={({ isActive }) =>
                     "nav-link" + (isActive ? " active fw-bold" : "")
                   }

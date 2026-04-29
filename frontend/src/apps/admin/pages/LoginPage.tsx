@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
         return;
       }
       setToken(data.token);
-      navigate("/admin/profile");
+      navigate("/admin");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Ошибка входа");
     } finally {
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
         <Col xs={12} sm={8} md={10} lg={4}>
           <Card className="shadow-sm">
             <Card.Header className="bg-dark text-white py-3">
-              <h5 className="mb-0 text-center">🔐 Вход для сотрудников</h5>
+              <h5 className="mb-0 text-center">Вход для сотрудников</h5>
             </Card.Header>
             <Card.Body className="p-4">
               {error && <Alert variant="danger">{error}</Alert>}

@@ -34,8 +34,8 @@ export default function App() {
             </AdminGuard>
           }
         >
-          <Route index element={<Navigate to="profile" replace />} />
-          <Route path="profile" element={<AdminProfilePage />} />
+          <Route index element={<AdminProfilePage />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 
         {/* Client routes */}
