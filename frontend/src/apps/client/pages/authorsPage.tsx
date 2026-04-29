@@ -1,18 +1,9 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../../shared/api";
 import { Container, Alert, Spinner, Row, Col, Card } from "react-bootstrap";
-import type Author from "../../../interfaces/author";
 import AuthorModal from "../modals/authorModal";
-
-function mapAuthorFromApi(raw: any): Author {
-	return {
-		id: raw.ID,
-		surname: raw.Surname,
-		name: raw.Name,
-		patronymic: raw.Patronymic,
-		info: raw.Info,
-	};
-}
+import type Author from "../../../mappers/author";
+import { mapAuthorFromApi } from "../../../mappers/author";
 
 export default function AuthorsPage() {
 	const [authors, setAuthors] = useState<Author[]>([]);

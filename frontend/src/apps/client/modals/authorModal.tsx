@@ -1,6 +1,6 @@
 import { Button, Modal } from "react-bootstrap";
-import type Author from "../../../interfaces/author";
-import type BookFilter from "../../../interfaces/bookFilter";
+import type Author from "../../../interfaces/data/author";
+import type BookFilter from "../../../interfaces/data/bookFilter";
 import { apiFetch } from "../../../shared/api";
 
 interface AuthorModalProps {

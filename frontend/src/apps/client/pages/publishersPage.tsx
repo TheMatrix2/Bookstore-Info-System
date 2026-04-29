@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../../shared/api";
 import { Container, Card, Alert, Spinner, Row, Col } from "react-bootstrap";
-import type Publisher from "../../../interfaces/publisher";
-
-function mapPublisherFromApi(raw: any): Publisher {
-  return {
-    id: raw.ID,
-    name: raw.Name,
-    address: raw.Address,
-    email: raw.Email,
-    website: raw.Website,
-  };
-}
+import type Publisher from "../../../mappers/publisher";
+import { mapPublisherFromApi } from "../../../mappers/publisher";
 
 export default function PublishersPage() {
   const [publishers, setPublishers] = useState<Publisher[]>([]);

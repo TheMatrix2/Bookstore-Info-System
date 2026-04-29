@@ -3,27 +3,9 @@ import { Container, Card, Button, Form, Alert, Spinner, Row, Col } from "react-b
 import { useAuthStore } from "../../../shared/authStore";
 import { apiFetch } from "../../../shared/api";
 import { useNavigate } from "react-router-dom";
-import type User from "../../../interfaces/user";
+import { mapUserFromApi, mapUserToApi } from "../../../mappers/user";
+import type User from "../../../mappers/user";
 
-function mapUserFromApi(raw: any): User {
-  return {
-    username: raw.Username,
-    email: raw.Email,
-    phone: raw.Phone,
-  };
-}
-
-function mapUserToApi(user: {
-  username: string;
-  email: string;
-  phone: string | null;
-}) {
-  return {
-    Username: user.username,
-    Email: user.email,
-    Phone: user.phone,
-  };
-}
 
 export default function ClientProfilePage() {
   const { token, id, logout } = useAuthStore();
@@ -63,7 +45,7 @@ export default function ClientProfilePage() {
     };
 
     fetchUser();
-  }, [token, navigate]);
+  }, [token, id, navigate]);
 
   async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();

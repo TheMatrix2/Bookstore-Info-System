@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Nav } from 'react-bootstrap';
+import { Alert, Container, Modal, Nav } from 'react-bootstrap';
 import LoginForm from './loginForm';
 import RegisterForm from './registerForm';
 
@@ -13,7 +13,7 @@ type Tab = 'login' | 'register';
 
 export default function AuthModal({ show, onHide }: AuthModalProps) {
   const [tab, setTab] = useState<Tab>('login');
-  const [_, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleTabSelect = (key: string | null) => {
     if (key === 'login' || key === 'register') {
@@ -21,6 +21,14 @@ export default function AuthModal({ show, onHide }: AuthModalProps) {
       setError(null);
     }
   };
+
+  if (error) {
+  return (
+    <Container className="py-5">
+      <Alert variant="danger">{error}</Alert>
+    </Container>
+  );
+  }
 
   return (
     <Modal show={show} onHide={onHide}>
