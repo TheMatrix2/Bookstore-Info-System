@@ -34,7 +34,7 @@ func (r *CartRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*mo
 		Relation("Items", func(q *bun.SelectQuery) *bun.SelectQuery {
 			return q.Relation("Book")
 		}).
-		Where("user_id = ?", userID).
+		Where("\"cart\".\"user_id\" = ?", userID).
 		Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to found cart: %w", err)
@@ -46,7 +46,7 @@ func (r *CartRepository) GetItem(ctx context.Context, cartID, bookID uuid.UUID) 
 	item := new(models.CartItem)
 	err := r.db.NewSelect().
 		Model(item).
-		Where("cart_id = ? AND book_id = ?", cartID, bookID).
+		Where("\"cart_item\".\"cart_id\" = ? AND \"cart_item\".\"book_id\" = ?", cartID, bookID).
 		Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to found cart item: %w", err)
@@ -67,7 +67,7 @@ func (r *CartRepository) AddItem(ctx context.Context, item *models.CartItem) err
 func (r *CartRepository) UpdateItem(ctx context.Context, item *models.CartItem) error {
 	_, err := r.db.NewUpdate().
 		Model(item).
-		Where("id = ?", item.ID).
+		Where("\"cart_item\".\"id\" = ?", item.ID).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update cart item: %w", err)
@@ -78,7 +78,7 @@ func (r *CartRepository) UpdateItem(ctx context.Context, item *models.CartItem) 
 func (r *CartRepository) RemoveItem(ctx context.Context, cartID uuid.UUID, bookID uuid.UUID) error {
 	_, err := r.db.NewDelete().
 		Model((*models.CartItem)(nil)).
-		Where("cart_id = ? AND book_id = ?", cartID, bookID).
+		Where("\"cart_item\".\"cart_id\" = ? AND \"cart_item\".\"book_id\" = ?", cartID, bookID).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to remove cart item: %w", err)
@@ -89,7 +89,7 @@ func (r *CartRepository) RemoveItem(ctx context.Context, cartID uuid.UUID, bookI
 func (r *CartRepository) ClearCart(ctx context.Context, cartID uuid.UUID) error {
 	_, err := r.db.NewDelete().
 		Model((*models.CartItem)(nil)).
-		Where("cart_id = ?", cartID).
+		Where("\"cart_item\".\"cart_id\" = ?", cartID).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to clear cart: %w", err)

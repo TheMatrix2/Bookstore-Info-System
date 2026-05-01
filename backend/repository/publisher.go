@@ -24,7 +24,10 @@ func (r *PublisherRepository) Create(ctx context.Context, publisher *models.Publ
 
 func (r *PublisherRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Publisher, error) {
 	publisher := new(models.Publisher)
-	err := r.db.NewSelect().Model(publisher).Where("id = ?", id).Scan(ctx)
+	err := r.db.NewSelect().
+		Model(publisher).
+		Where("\"publisher\".\"id\" = ?", id).
+		Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("publisher not found: %W", err)
 	}
@@ -33,12 +36,17 @@ func (r *PublisherRepository) GetByID(ctx context.Context, id uuid.UUID) (*model
 
 func (r *PublisherRepository) GetAll(ctx context.Context) ([]models.Publisher, error) {
 	var publishers []models.Publisher
-	err := r.db.NewSelect().Model(&publishers).Scan(ctx)
+	err := r.db.NewSelect().
+		Model(&publishers).
+		Scan(ctx)
 	return publishers, err
 }
 
 func (r *PublisherRepository) Update(ctx context.Context, publisher *models.Publisher) error {
-	_, err := r.db.NewUpdate().Model(publisher).Where("id = ?", publisher.ID).Exec(ctx)
+	_, err := r.db.NewUpdate().
+		Model(publisher).
+		Where("\"publisher\".\"id\" = ?", publisher.ID).
+		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update publisher: %W", err)
 	}
@@ -46,7 +54,10 @@ func (r *PublisherRepository) Update(ctx context.Context, publisher *models.Publ
 }
 
 func (r *PublisherRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.NewDelete().Model((*models.Publisher)(nil)).Where("id = ?", id).Exec(ctx)
+	_, err := r.db.NewDelete().
+		Model((*models.Publisher)(nil)).
+		Where("\"publisher\".\"id\" = ?", id).
+		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete publisher: %W", err)
 	}

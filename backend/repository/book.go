@@ -48,10 +48,10 @@ func (r *BookRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Boo
 		Relation("Author").
 		Relation("Publisher").
 		Relation("Categories").
-		Where("id = ?", id).
+		Where("\"book\".\"id\" = ?", id).
 		Scan(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("book not found: %W", err)
+		return nil, fmt.Errorf("book not found: %w", err)
 	}
 	return book, nil
 }
@@ -65,21 +65,21 @@ func (r *BookRepository) GetAll(ctx context.Context, filter dto.BookFilter) ([]m
 			Relation("Categories")
 
 	if filter.AuthorID != nil {
-		query = query.Where("book.author_id = ?", filter.AuthorID)
+		query = query.Where("\"book\".\"author_id\" = ?", filter.AuthorID)
 	}
 	if filter.CategoryID != nil {
 		query = query.Join("JOIN book_to_category btc ON btc.book_id = book.id").
-			Where("btc.category_id = ?", *filter.CategoryID)
+			Where("\"btc\".\"category_id\" = ?", *filter.CategoryID)
 	}
 	if filter.MinPrice != nil {
-		query = query.Where("book.price >= ?", *filter.MinPrice)
+		query = query.Where("\"book\".\"price\" >= ?", *filter.MinPrice)
 	}
 	if filter.MaxPrice != nil {
-		query = query.Where("book.price <= ?", *filter.MaxPrice)
+		query = query.Where("\"book\".\"price\" <= ?", *filter.MaxPrice)
 	}
 	if filter.Search != nil {
 		searchTerm := "%" + *filter.Search + "%"
-		query = query.Where("book.title ILIKE ? OR book.description ILIKE ?", searchTerm, searchTerm)
+		query = query.Where("\"book\".\"title\" ILIKE ? OR \"book\".\"description\" ILIKE ?", searchTerm, searchTerm)
 	}
 
 	err := query.Scan(ctx)
@@ -93,7 +93,7 @@ func (r *BookRepository) Update(ctx context.Context, book *models.Book, category
 			return fmt.Errorf("failed to update book: %W", err)
 		}
 
-		if _, err := tx.NewDelete().Model(&models.BookToCategory{}).Where("book_id = ?", book.ID).Exec(ctx); err != nil {
+		if _, err := tx.NewDelete().Model(&models.BookToCategory{}).Where("\"book_to_category\".\"book_id\" = ?", book.ID).Exec(ctx); err != nil {
 			return fmt.Errorf("failed to delete old book-category relations: %W", err)
 		}
 		
@@ -116,10 +116,10 @@ func (r *BookRepository) Update(ctx context.Context, book *models.Book, category
 
 func (r *BookRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
-		if _, err := tx.NewDelete().Model(&models.BookToCategory{}).Where("book_id = ?", id).Exec(ctx); err != nil {
+		if _, err := tx.NewDelete().Model(&models.BookToCategory{}).Where("\"book_to_category\".\"book_id\" = ?", id).Exec(ctx); err != nil {
 			return fmt.Errorf("failed to delete book-category relations: %W", err)
 		}
-		if _, err := tx.NewDelete().Model(&models.Book{}).Where("id = ?", id).Exec(ctx); err != nil {
+		if _, err := tx.NewDelete().Model(&models.Book{}).Where("\"book\".\"id\" = ?", id).Exec(ctx); err != nil {
 			return fmt.Errorf("failed to delete book: %W", err)
 		}
 		return nil

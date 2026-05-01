@@ -18,13 +18,18 @@ func NewCategoryRepository(db *bun.DB) *CategoryRepository {
 }
 
 func (r *CategoryRepository) Create(ctx context.Context, category *models.Category) error {
-	_, err := r.db.NewInsert().Model(category).Exec(ctx)
+	_, err := r.db.NewInsert().
+		Model(category).
+		Exec(ctx)
 	return err
 }
 
 func (r *CategoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Category, error) {
 	category := new(models.Category)
-	err := r.db.NewSelect().Model(category).Where("id = ?", id).Scan(ctx)
+	err := r.db.NewSelect().
+		Model(category).
+		Where("\"category\".\"id\" = ?", id).
+		Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("category not found: %W", err)
 	}
@@ -33,17 +38,25 @@ func (r *CategoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*models
 
 func (r *CategoryRepository) GetAll(ctx context.Context) ([]models.Category, error) {
 	var categories []models.Category
-	err := r.db.NewSelect().Model(&categories).Scan(ctx)
+	err := r.db.NewSelect().
+		Model(&categories).
+		Scan(ctx)
 	return categories, err
 }
 
 func (r *CategoryRepository) Update(ctx context.Context, category *models.Category) error {
-	_, err := r.db.NewUpdate().Model(category).WherePK().Exec(ctx)
+	_, err := r.db.NewUpdate().
+		Model(category).
+		WherePK().
+		Exec(ctx)
 	return err
 }
 
 func (r *CategoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.NewDelete().Model(&models.Category{}).Where("id = ?", id).Exec(ctx)
+	_, err := r.db.NewDelete().
+		Model(&models.Category{}).
+		Where("\"category\".\"id\" = ?", id).
+		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete category: %W", err)
 	}

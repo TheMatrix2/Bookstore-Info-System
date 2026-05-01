@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/models"
 	_ "github.com/lib/pq"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
@@ -25,5 +26,7 @@ func New() (*bun.DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	return bun.NewDB(sqldb, pgdialect.New()), nil
+	db := bun.NewDB(sqldb, pgdialect.New())
+	db.RegisterModel((*models.BookToCategory)(nil))
+	return db, nil
 }
