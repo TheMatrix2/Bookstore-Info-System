@@ -1,7 +1,7 @@
 import { Button, Modal } from "react-bootstrap";
-import type Author from "../../../interfaces/data/author";
-import type BookFilter from "../../../interfaces/data/bookFilter";
 import { apiFetch } from "../../../shared/api";
+import type Author from "../../../mappers/author";
+import type BookFilter from "../../../mappers/book";
 
 interface AuthorModalProps {
   author: Author;
@@ -30,10 +30,12 @@ export default function AuthorModal({ author, show, onHide }: AuthorModalProps) 
 			</Modal.Header>
 			<Modal.Body>
 				<p>{author.info || "Информация отсутствует"}</p>
+			</Modal.Body>
+			<Modal.Footer>
 				<Button variant="primary" onClick={() => handleShowBooks(author.id)}>
 					Показать книги автора
 				</Button>
-			</Modal.Body>
+			</Modal.Footer>
 		</Modal>
 	)
 }
