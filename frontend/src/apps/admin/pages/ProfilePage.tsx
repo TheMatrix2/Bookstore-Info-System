@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, Button, Form, Alert, Spinner, Row, Col, Container } from "react-bootstrap";
 import { useAuthStore } from "../../../shared/authStore";
 import { apiFetch } from "../../../shared/api";
-import type User from "../../../interfaces/user";
+import type User from "../../../mappers/user";
 import { mapUserFromApi, mapUserToApi } from "../../../mappers/user";
 import { useNavigate } from "react-router-dom";
 
@@ -43,7 +43,7 @@ export default function AdminProfilePage() {
     fetchUser();
   }, [token, id, navigate]);
 
-  async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
     setSaving(true);

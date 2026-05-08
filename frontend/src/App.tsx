@@ -1,13 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ClientLayout from "./apps/client/layouts/clientLayout";
 import AdminLayout from "./apps/admin/layouts/adminLayout";
-import AdminLoginPage from "./apps/admin/pages/loginPage";
-import AdminProfilePage from "./apps/admin/pages/profilePage";
-import HomePage from "./apps/client/pages/homePage";
-import ClientProfilePage from "./apps/client/pages/profilePage";
-import { useAuthStore } from "./shared/authStore";
+import AdminLoginPage from "./apps/admin/pages/LoginPage";
+import AdminProfilePage from "./apps/admin/pages/ProfilePage";
+import BooksAdminPage from "./apps/admin/pages/BooksAdminPage";
+import AuthorsAdminPage from "./apps/admin/pages/AuthorsAdminPage";
+import PublishersAdminPage from "./apps/admin/pages/PublishersAdminPage";
+import CategoriesAdminPage from "./apps/admin/pages/CategoriesAdminPage";
+import UsersAdminPage from "./apps/admin/pages/UsersAdminPage";
+import OrdersAdminPage from "./apps/admin/pages/OrdersAdminPage";
+import HomePage from "./apps/client/pages/HomePage";
+import ClientProfilePage from "./apps/client/pages/ProfilePage";
 import PublishersPage from "./apps/client/pages/publishersPage";
 import AuthorsPage from "./apps/client/pages/authorsPage";
+import BooksPage from "./apps/client/pages/booksPage";
+import CartPage from "./apps/client/pages/CartPage";
+import OrdersPage from "./apps/client/pages/OrdersPage";
+import { useAuthStore } from "./shared/authStore";
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { token, role } = useAuthStore();
@@ -25,7 +34,7 @@ export default function App() {
         {/* Admin login — without layout */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
 
-        {/* Admin panel — with sidebar layout, protected */}
+        {/* Admin panel */}
         <Route
           path="/admin"
           element={
@@ -35,12 +44,21 @@ export default function App() {
           }
         >
           <Route index element={<AdminProfilePage />} />
+          <Route path="books" element={<BooksAdminPage />} />
+          <Route path="authors" element={<AuthorsAdminPage />} />
+          <Route path="publishers" element={<PublishersAdminPage />} />
+          <Route path="categories" element={<CategoriesAdminPage />} />
+          <Route path="users" element={<UsersAdminPage />} />
+          <Route path="orders" element={<OrdersAdminPage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 
         {/* Client routes */}
         <Route path="/" element={<ClientLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="books" element={<BooksPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="orders" element={<OrdersPage />} />
           <Route path="profile" element={<ClientProfilePage />} />
           <Route path="publishers" element={<PublishersPage />} />
           <Route path="authors" element={<AuthorsPage />} />

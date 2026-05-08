@@ -29,56 +29,27 @@ export default function AdminLayout() {
         <Row>
           <Col md={2}>
             <Nav className="flex-column border-end pe-3" style={{ minHeight: "80vh" }}>
-              <Nav.Item>
-                <NavLink
-                  to="/admin"
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active fw-bold" : "")
-                  }
-                >
-                  👤 Профиль
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <NavLink
-                  to="/admin/users"
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active fw-bold" : "")
-                  }
-                >
-                  👥 Пользователи
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <NavLink
-                  to="/admin/books"
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active fw-bold" : "")
-                  }
-                >
-                  📖 Книги
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <NavLink
-                  to="/admin/authors"
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active fw-bold" : "")
-                  }
-                >
-                  ✍️ Авторы
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <NavLink
-                  to="/admin/publishers"
-                  className={({ isActive }) =>
-                    "nav-link" + (isActive ? " active fw-bold" : "")
-                  }
-                >
-                  🏢 Издательства
-                </NavLink>
-              </Nav.Item>
+              {[
+                { to: "/admin", label: "👤 Профиль", end: true },
+                { to: "/admin/books", label: "📖 Книги" },
+                { to: "/admin/authors", label: "✍️ Авторы" },
+                { to: "/admin/publishers", label: "🏢 Издательства" },
+                { to: "/admin/categories", label: "🏷️ Категории" },
+                { to: "/admin/users", label: "👥 Пользователи" },
+                { to: "/admin/orders", label: "📦 Заказы" },
+              ].map(({ to, label, end }) => (
+                <Nav.Item key={to}>
+                  <NavLink
+                    to={to}
+                    end={end}
+                    className={({ isActive }) =>
+                      "nav-link" + (isActive ? " active fw-bold" : "")
+                    }
+                  >
+                    {label}
+                  </NavLink>
+                </Nav.Item>
+              ))}
             </Nav>
           </Col>
 

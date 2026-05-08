@@ -20,17 +20,16 @@ func NewBookService(repo interfaces.BookRepositoryInterface) *BookService {
 
 func (s *BookService) Create(ctx context.Context, input dto.BookInput) (*models.Book, error) {
 	book := &models.Book{
-		Title: input.Title,
+		Title:       input.Title,
 		Description: input.Description,
-		Price: input.Price,
-		Stock: input.Stock,
-		AuthorID: input.AuthorID,
+		Price:       input.Price,
+		Stock:       input.Stock,
 		PublisherID: input.PublisherID,
 	}
-	if err := s.repo.Create(ctx, book, input.CategoryIDs); err != nil {
+	if err := s.repo.Create(ctx, book, input.AuthorIDs, input.CategoryIDs); err != nil {
 		return nil, apperrors.ErrInternal(err)
 	}
-	return book, nil
+	return s.repo.GetByID(ctx, book.ID)
 }
 
 func (s *BookService) GetByID(ctx context.Context, id uuid.UUID) (*models.Book, error) {
@@ -58,20 +57,18 @@ func (s *BookService) Update(ctx context.Context, id uuid.UUID, input dto.BookIn
 	book.Description = input.Description
 	book.Price = input.Price
 	book.Stock = input.Stock
-	book.AuthorID = input.AuthorID
 	book.PublisherID = input.PublisherID
 
-	if err := s.repo.Update(ctx, book, input.CategoryIDs); err != nil {
+	if err := s.repo.Update(ctx, book, input.AuthorIDs, input.CategoryIDs); err != nil {
 		return nil, apperrors.ErrInternal(err)
 	}
-	return book, nil
+	return s.repo.GetByID(ctx, book.ID)
 }
 
 func (s *BookService) Delete(ctx context.Context, id uuid.UUID) error {
 	if _, err := s.repo.GetByID(ctx, id); err != nil {
 		return apperrors.ErrNotFound("book not found")
 	}
-	
 	if err := s.repo.Delete(ctx, id); err != nil {
 		return apperrors.ErrInternal(err)
 	}

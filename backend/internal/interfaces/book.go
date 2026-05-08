@@ -9,10 +9,10 @@ import (
 )
 
 type BookRepositoryInterface interface {
-	Create(ctx context.Context, book *models.Book, categoryIDs []uuid.UUID) error
+	Create(ctx context.Context, book *models.Book, authorIDs []uuid.UUID, categoryIDs []uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*models.Book, error)
 	GetAll(ctx context.Context, filter dto.BookFilter) ([]models.Book, error)
-	Update(ctx context.Context, author *models.Book, CategoryIDs []uuid.UUID) error
+	Update(ctx context.Context, book *models.Book, authorIDs []uuid.UUID, categoryIDs []uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
