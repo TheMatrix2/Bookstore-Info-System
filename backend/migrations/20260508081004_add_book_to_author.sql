@@ -1,0 +1,2 @@
+-- Modify "book_to_author" table
+ALTER TABLE "public"."book_to_author" DROP CONSTRAINT "book_to_author_author_id_fkey", DROP CONSTRAINT "book_to_author_book_id_fkey", ADD CONSTRAINT "book_to_author_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "public"."authors" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION, ADD CONSTRAINT "book_to_author_book_id_fkey" FOREIGN KEY ("book_id") REFERENCES "public"."books" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;

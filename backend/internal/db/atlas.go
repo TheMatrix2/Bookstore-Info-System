@@ -20,6 +20,7 @@ func main() {
 		&models.User{},
 		&models.Book{},
 		&models.BookToCategory{},
+		&models.BookToAuthor{},
 		&models.Cart{},
 		&models.CartItem{},
 		&models.Order{},
