@@ -47,7 +47,7 @@ export default function ClientProfilePage() {
     fetchUser();
   }, [token, id, navigate]);
 
-  async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
