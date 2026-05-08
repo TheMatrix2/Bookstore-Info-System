@@ -28,5 +28,6 @@ func New() (*bun.DB, error) {
 
 	db := bun.NewDB(sqldb, pgdialect.New())
 	db.RegisterModel((*models.BookToCategory)(nil))
+	db.RegisterModel((*models.BookToAuthor)(nil))
 	return db, nil
 }

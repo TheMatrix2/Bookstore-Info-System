@@ -112,11 +112,11 @@ func main() {
 		private.GET("/orders",                    orderHandler.GetUserOrders)
 		private.GET("/orders/:id",                orderHandler.GetByID)
 
-		private.POST("/orders/:order_id/payment", paymentHandler.Create)
-		private.GET("/orders/:order_id/payment",  paymentHandler.GetByOrderID)
+		private.POST("/orders/:id/payment", paymentHandler.Create)
+		private.GET("/orders/:id/payment",  paymentHandler.GetByOrderID)
 
-		private.POST("/orders/:order_id/delivery", deliveryHandler.Create)
-		private.GET("/orders/:order_id/delivery",  deliveryHandler.GetByOrderID)
+		private.POST("/orders/:id/delivery", deliveryHandler.Create)
+		private.GET("/orders/:id/delivery",  deliveryHandler.GetByOrderID)
 	}
 
 	// employee routes
@@ -146,7 +146,7 @@ func main() {
 		employee.GET("/admin/orders",                 orderHandler.GetAll)
 		employee.PUT("/admin/orders/:id/status",      orderHandler.UpdateStatus)
 		employee.PUT("/admin/payments/:id/status",    paymentHandler.UpdateStatus)
-		employee.PUT("/admin/deliveries/:order_id/status", deliveryHandler.UpdateStatus)
+		employee.PUT("/admin/deliveries/:id/status", deliveryHandler.UpdateStatus)
 	}
 
 	if err := router.Run(":8080"); err != nil {

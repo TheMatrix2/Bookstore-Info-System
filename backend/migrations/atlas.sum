@@ -1,6 +1,7 @@
-h1:gOUeWlfmzqTWQQ4ot4csgkzIbxWI4D/lzfKO7wsTmCo=
+h1:QrnthB3JoKcEePQ97/aeF/dXWN1txFdXEeFIQGM5/2o=
 20260218212124_initial_schema.sql h1:zNc4XCFl1HOfG/Q0mesJKoHkALRxpFH/2bLT+7f0C8k=
 20260301004150_seed_roles.sql h1:ARWJrtPROv93DdjM23dJCxZ03gC3X+Myu3g1hN+/t80=
 20260316215749_add_info_author.sql h1:LUfkpslhTt83kKGxfRkmIkA0zk6dbPgOCVLaTuUtv8g=
 20260416171151_update_publisher.sql h1:os1amGCbnI/nS+NiETAFjsDff9BMuIAFQUVy6a8XxBQ=
-20260416172115_seed_content.sql h1:/H6TW64DVpneZWjgPiNUlPK7li7ORJVnuLPYAU4PzmM=
+20260508000001_book_multi_author.sql h1:+M+nZNiCXapjnge+iSgDVKmGj5I8Ws+eE8sVDtSirJU=
+20260508000002_order_item_price.sql h1:XTt+WHs80fK2kizffzAW6Fvi+uOO80AlX0h7SxG+GBw=
