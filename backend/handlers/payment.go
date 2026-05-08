@@ -19,15 +19,15 @@ func NewPaymentHandler(service interfaces.PaymentServiceInterface) *PaymentHandl
 	return &PaymentHandler{service: service}
 }
 
-// POST /orders/:order_id/payment
+// POST /orders/:id/payment
 func (h *PaymentHandler) Create(c *gin.Context) {
 	_, ok := parsers.UserIDFromContext(c)
 	if !ok {
 		return
 	}
-	orderID, err := uuid.Parse(c.Param("order_id"))
+	orderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid order_id"))
+		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid id"))
 		return
 	}
 	var input dto.CreatePaymentInput
@@ -43,15 +43,15 @@ func (h *PaymentHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, payment)
 }
 
-// GET /orders/:order_id/payment
+// GET /orders/:id/payment
 func (h *PaymentHandler) GetByOrderID(c *gin.Context) {
 	_, ok := parsers.UserIDFromContext(c)
 	if !ok {
 		return
 	}
-	orderID, err := uuid.Parse(c.Param("order_id"))
+	orderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid order_id"))
+		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid id"))
 		return
 	}
 	payment, err := h.service.GetByOrderID(c.Request.Context(), orderID)

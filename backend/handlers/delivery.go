@@ -19,15 +19,15 @@ func NewDeliveryHandler(service interfaces.DeliveryServiceInterface) *DeliveryHa
 	return &DeliveryHandler{service: service}
 }
 
-// POST /orders/:order_id/delivery
+// POST /orders/:id/delivery
 func (h *DeliveryHandler) Create(c *gin.Context) {
 	_, ok := parsers.UserIDFromContext(c)
 	if !ok {
 		return
 	}
-	orderID, err := uuid.Parse(c.Param("order_id"))
+	orderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid order_id"))
+		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid id"))
 		return
 	}
 	var input dto.CreateDeliveryInput
@@ -43,15 +43,15 @@ func (h *DeliveryHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, delivery)
 }
 
-// GET /orders/:order_id/delivery
+// GET /orders/:id/delivery
 func (h *DeliveryHandler) GetByOrderID(c *gin.Context) {
 	_, ok := parsers.UserIDFromContext(c)
 	if !ok {
 		return
 	}
-	orderID, err := uuid.Parse(c.Param("order_id"))
+	orderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid order_id"))
+		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid id"))
 		return
 	}
 	delivery, err := h.service.GetByOrderID(c.Request.Context(), orderID)
@@ -62,11 +62,11 @@ func (h *DeliveryHandler) GetByOrderID(c *gin.Context) {
 	c.JSON(http.StatusOK, delivery)
 }
 
-// PUT /admin/deliveries/:order_id/status
+// PUT /admin/deliveries/:id/status
 func (h *DeliveryHandler) UpdateStatus(c *gin.Context) {
-	orderID, err := uuid.Parse(c.Param("order_id"))
+	orderID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid order_id"))
+		apperrors.RespondeError(c, apperrors.ErrBadRequest("invalid id"))
 		return
 	}
 	var input dto.UpdateDeliveryStatusInput
