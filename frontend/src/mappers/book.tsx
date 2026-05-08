@@ -80,11 +80,9 @@ export function mapBookFromAPI(raw: BookAPIResponse): Book {
           name: raw.Publisher.Name,
           address: raw.Publisher.Address,
           email: raw.Publisher.Email,
-          website: raw.Publisher.Website,
+          website: raw.Publisher.Website ?? null,
         }
-      : { id: "", name: "", address: "", email: "" },
+      : { id: "", name: "", address: "", email: "", website: null },
     stock: raw.Stock,
   };
 }
-
-export default Book;
