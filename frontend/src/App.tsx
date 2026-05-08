@@ -1,22 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import ClientLayout from "./apps/client/layouts/clientLayout";
-import AdminLayout from "./apps/admin/layouts/adminLayout";
-import AdminLoginPage from "./apps/admin/pages/LoginPage";
-import AdminProfilePage from "./apps/admin/pages/ProfilePage";
+import ClientLayout from "./apps/client/layouts/ClientLayout";
+import AdminLayout from "./apps/admin/layouts/AdminLayout";
 import BooksAdminPage from "./apps/admin/pages/BooksAdminPage";
 import AuthorsAdminPage from "./apps/admin/pages/AuthorsAdminPage";
 import PublishersAdminPage from "./apps/admin/pages/PublishersAdminPage";
 import CategoriesAdminPage from "./apps/admin/pages/CategoriesAdminPage";
 import UsersAdminPage from "./apps/admin/pages/UsersAdminPage";
 import OrdersAdminPage from "./apps/admin/pages/OrdersAdminPage";
-import HomePage from "./apps/client/pages/HomePage";
-import ClientProfilePage from "./apps/client/pages/ProfilePage";
-import PublishersPage from "./apps/client/pages/publishersPage";
-import AuthorsPage from "./apps/client/pages/authorsPage";
-import BooksPage from "./apps/client/pages/booksPage";
+import PublishersPage from "./apps/client/pages/PublishersPage";
 import CartPage from "./apps/client/pages/CartPage";
 import OrdersPage from "./apps/client/pages/OrdersPage";
 import { useAuthStore } from "./shared/authStore";
+import AdminLoginPage from "./apps/admin/pages/LoginAdminPage";
+import AdminProfilePage from "./apps/admin/pages/ProfileAdminPage";
+import ClientProfilePage from "./apps/client/pages/ProfilePage";
+import AuthorsPage from "./apps/client/pages/AuthorsPage";
+import BooksPage from "./apps/client/pages/BooksPage";
+import HomePage from "./apps/client/pages/HomePage";
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { token, role } = useAuthStore();

@@ -10,7 +10,7 @@ import type Author from "../../../mappers/author";
 import { mapPublisherFromApi } from "../../../mappers/publisher";
 import type Publisher from "../../../mappers/publisher";
 import { useAuthStore } from "../../../shared/authStore";
-import BookModal from "../modals/bookModal";
+import BookModal from "../modals/BookModal";
 
 interface Category {
   id: string;

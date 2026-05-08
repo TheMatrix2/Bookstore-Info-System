@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../../shared/api";
 import { Container, Alert, Spinner, Row, Col, Card } from "react-bootstrap";
-import AuthorModal from "../modals/authorModal";
+import AuthorModal from "../modals/AuthorModal";
 import type Author from "../../../mappers/author";
 import { mapAuthorFromApi } from "../../../mappers/author";
 

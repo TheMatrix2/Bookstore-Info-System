@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Container, Row, Col, Card, Button, Badge,
+  Container, Row, Col, Card, Button,
   Spinner, Alert, Table, Form, Modal,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";

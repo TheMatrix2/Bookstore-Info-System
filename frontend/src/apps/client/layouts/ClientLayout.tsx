@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, Button, Row, Col } from "react-bootstrap";
 import { useAuthStore } from "../../../shared/authStore";
-import AuthModal from "../../../shared/AuthModal";
+import AuthModal from "../../../shared/authModal";
 
 export default function ClientLayout() {
   const { token, logout } = useAuthStore();
