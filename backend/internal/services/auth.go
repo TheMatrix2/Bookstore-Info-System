@@ -50,10 +50,11 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	user := &models.User{
-		Username:     req.Username,
-		Email:        req.Email,
-		PasswordHash: string(hash),
-		RoleID:       role.ID,
+		Username:     	req.Username,
+		Email:        	req.Email,
+		Phone: 		  	req.Phone,
+		PasswordHash: 	string(hash),
+		RoleID:       	role.ID,
 	}
 
 	if err = s.userRepo.Create(ctx, user); err != nil {
