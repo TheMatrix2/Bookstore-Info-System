@@ -22,7 +22,7 @@ type User struct {
 	ID           uuid.UUID `bun:"id,pk,type:uuid,default:gen_random_uuid()"`
 	Username     string    `bun:"username,unique,notnull"`
 	Email        string    `bun:"email,unique,notnull"`
-	Phone        *string
+	Phone        *string   `bun:"phone,unique"`
 	PasswordHash string    `bun:"password_hash,notnull"`
 	RoleID       uuid.UUID `bun:"role_id,type:uuid,notnull"`
 
@@ -69,7 +69,7 @@ type Book struct {
 
 	ID          uuid.UUID `bun:"id,pk,type:uuid,default:gen_random_uuid()"`
 	Title       string    `bun:"title,notnull"`
-	Description *string
+	Description *string	  `bun:"description"`
 	Price       float64   `bun:"price,notnull,default:0"`
 	Stock       int       `bun:"stock,notnull,default:0"`
 	PublisherID uuid.UUID `bun:"publisher_id,type:uuid,notnull"`
@@ -175,7 +175,8 @@ type Payment struct {
 type Delivery struct {
 	bun.BaseModel `bun:"table:deliveries"`
 
-	OrderID uuid.UUID `bun:"order_id,pk,type:uuid"`
+	ID 		uuid.UUID `bun:"id,pk,type:uuid,default:gen_random_uuid()"`
+	OrderID uuid.UUID `bun:"order_id,type:uuid,notnull,unique"`
 	Address string    `bun:"address,notnull"`
 	Status  string    `bun:"status,notnull,default:'Waiting'"`
 
