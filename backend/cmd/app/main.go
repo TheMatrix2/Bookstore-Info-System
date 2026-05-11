@@ -54,7 +54,7 @@ func main() {
 	categoryService  := services.NewCategoryService(categoryRepo)
 	bookService      := services.NewBookService(bookRepo)
 	cartService      := services.NewCartService(cartRepo)
-	orderService     := services.NewOrderService(orderRepo, cartRepo)
+	orderService     := services.NewOrderService(orderRepo, cartRepo, bookRepo)
 	paymentService   := services.NewPaymentService(paymentRepo, orderRepo)
 	deliveryService  := services.NewDeliveryService(deliveryRepo, orderRepo)
 

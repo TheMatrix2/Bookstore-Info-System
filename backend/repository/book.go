@@ -167,6 +167,25 @@ func (r *BookRepository) Update(ctx context.Context, book *models.Book, authorID
 	})
 }
 
+func (r *BookRepository) UpdateStock(ctx context.Context, bookID uuid.UUID, delta int) error {
+	res, err := r.db.NewUpdate().Model((*models.Book)(nil)).
+		Set("stock = stock + ?", delta).
+		Set("updated_at = NOW()").
+		Where("id = ? AND stock + ? >= 0", bookID, delta).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to update book stock: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+	if n == 0 {
+		return fmt.Errorf("insufficient stock for book %s", bookID)
+	}
+	return nil
+}
+
 func (r *BookRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
 		if _, err := tx.NewDelete().Model(&models.BookToAuthor{}).Where("book_id = ?", id).Exec(ctx); err != nil {

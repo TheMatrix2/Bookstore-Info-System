@@ -14,6 +14,7 @@ type BookRepositoryInterface interface {
 	GetAll(ctx context.Context, filter dto.BookFilter) ([]models.Book, error)
 	Update(ctx context.Context, book *models.Book, authorIDs []uuid.UUID, categoryIDs []uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	UpdateStock(ctx context.Context, bookID uuid.UUID, delta int) error
 }
 
 type BookServiceInterface interface {

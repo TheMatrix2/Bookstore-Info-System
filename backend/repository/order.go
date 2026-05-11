@@ -29,6 +29,23 @@ func (r *OrderRepository) Create(ctx context.Context, order *models.Order, items
 			if _, err := tx.NewInsert().Model(&items).Exec(ctx); err != nil {
 				return fmt.Errorf("failed to create order items: %w", err)
 			}
+			for _, item := range items {
+				res, err := tx.NewUpdate().Model((*models.Book)(nil)).
+					Set("stock = stock - ?", item.Quantity).
+					Set("updated_at = NOW()").
+					Where("id = ? AND stock >= ?", item.BookID, item.Quantity).
+					Exec(ctx)
+				if err != nil {
+					return fmt.Errorf("failed to decrement stock for book %s: %w", item.BookID, err)
+				}
+				n, err := res.RowsAffected()
+				if err != nil {
+					return fmt.Errorf("failed to check rows affected: %w", err)
+				}
+				if n == 0 {
+					return fmt.Errorf("insufficient stock for book %s", item.BookID)
+				}
+			}
 		}
 		return nil
 	})

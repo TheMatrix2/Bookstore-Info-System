@@ -12,10 +12,11 @@ import (
 type OrderService struct {
 	orderRepo interfaces.OrderRepositoryInterface
 	cartRepo  interfaces.CartRepositoryInterface
+	bookRepo  interfaces.BookRepositoryInterface
 }
 
-func NewOrderService(orderRepo interfaces.OrderRepositoryInterface, cartRepo interfaces.CartRepositoryInterface) *OrderService {
-	return &OrderService{orderRepo: orderRepo, cartRepo: cartRepo}
+func NewOrderService(orderRepo interfaces.OrderRepositoryInterface, cartRepo interfaces.CartRepositoryInterface, bookRepo interfaces.BookRepositoryInterface) *OrderService {
+	return &OrderService{orderRepo: orderRepo, cartRepo: cartRepo, bookRepo: bookRepo}
 }
 
 func (s *OrderService) CreateFromCart(ctx context.Context, userID uuid.UUID) (*models.Order, error) {
@@ -93,9 +94,28 @@ func (s *OrderService) GetAll(ctx context.Context) ([]models.Order, error) {
 }
 
 func (s *OrderService) UpdateStatus(ctx context.Context, id uuid.UUID, status string) error {
-	if _, err := s.orderRepo.GetByID(ctx, id); err != nil {
+	order, err := s.orderRepo.GetByID(ctx, id)
+	if err != nil {
 		return apperrors.ErrNotFound("order not found")
 	}
+
+	wasCancelled := order.Status == "Cancelled"
+	isCancelled := status == "Cancelled"
+
+	if !wasCancelled && isCancelled {
+		for _, item := range order.Items {
+			if err := s.bookRepo.UpdateStock(ctx, item.BookID, item.Quantity); err != nil {
+				return apperrors.ErrInternal(err)
+			}
+		}
+	} else if wasCancelled && !isCancelled {
+		for _, item := range order.Items {
+			if err := s.bookRepo.UpdateStock(ctx, item.BookID, -item.Quantity); err != nil {
+				return apperrors.ErrInternal(err)
+			}
+		}
+	}
+
 	if err := s.orderRepo.UpdateStatus(ctx, id, status); err != nil {
 		return apperrors.ErrInternal(err)
 	}
