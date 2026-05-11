@@ -22,7 +22,7 @@ func (r *CartRepository) Create(ctx context.Context, cart *models.Cart) error {
 		Model(cart).
 		Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to create cart: %W", err)
+		return fmt.Errorf("failed to create cart: %w", err)
 	}
 	return nil
 }

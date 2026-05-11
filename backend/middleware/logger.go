@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -23,6 +24,9 @@ func Logger(log *slog.Logger) gin.HandlerFunc {
 		
 		if userID, exists := c.Get("user_id"); exists {
 			attrs = append(attrs, slog.Any("user_id", userID))
+		}
+		if len(c.Errors) > 0 {
+			attrs = append(attrs, slog.String("error", fmt.Sprintf("%+v", c.Errors.Last().Err)))
 		}
 
 		switch {

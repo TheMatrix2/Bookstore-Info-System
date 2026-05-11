@@ -31,7 +31,7 @@ func (r *CategoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*models
 		Where("\"category\".\"id\" = ?", id).
 		Scan(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("category not found: %W", err)
+		return nil, fmt.Errorf("category not found: %w", err)
 	}
 	return category, nil
 }
@@ -58,7 +58,7 @@ func (r *CategoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		Where("\"category\".\"id\" = ?", id).
 		Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to delete category: %W", err)
+		return fmt.Errorf("failed to delete category: %w", err)
 	}
 	return nil
 }
