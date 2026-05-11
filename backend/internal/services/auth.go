@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/apperrors"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
@@ -41,29 +40,29 @@ func (s *AuthService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
+		return nil, apperrors.ErrInternal(err)
 	}
 
 	role, err := s.userRepo.GetRoleByName(ctx, "user")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get role: %w", err)
+		return nil, apperrors.ErrInternal(err)
 	}
 
 	user := &models.User{
-		Username:     	req.Username,
-		Email:        	req.Email,
-		Phone: 		  	req.Phone,
-		PasswordHash: 	string(hash),
-		RoleID:       	role.ID,
+		Username:     req.Username,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		PasswordHash: string(hash),
+		RoleID:       role.ID,
 	}
 
 	if err = s.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return nil, apperrors.ErrInternal(err)
 	}
 
 	token, err := s.jwtService.GenerateToken(user.ID, role.Name)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return nil, apperrors.ErrInternal(err)
 	}
 
 	return &dto.AuthResponse{Token: token}, nil
@@ -86,7 +85,7 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.Aut
 
 	token, err := s.jwtService.GenerateToken(user.ID, role)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return nil, apperrors.ErrInternal(err)
 	}
 
 	return &dto.AuthResponse{Token: token}, nil

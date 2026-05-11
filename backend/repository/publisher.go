@@ -29,7 +29,7 @@ func (r *PublisherRepository) GetByID(ctx context.Context, id uuid.UUID) (*model
 		Where("\"publisher\".\"id\" = ?", id).
 		Scan(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("publisher not found: %W", err)
+		return nil, fmt.Errorf("publisher not found: %w", err)
 	}
 	return publisher, nil
 }
@@ -48,7 +48,7 @@ func (r *PublisherRepository) Update(ctx context.Context, publisher *models.Publ
 		Where("\"publisher\".\"id\" = ?", publisher.ID).
 		Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to update publisher: %W", err)
+		return fmt.Errorf("failed to update publisher: %w", err)
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func (r *PublisherRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		Where("\"publisher\".\"id\" = ?", id).
 		Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to delete publisher: %W", err)
+		return fmt.Errorf("failed to delete publisher: %w", err)
 	}
 	return nil
 }

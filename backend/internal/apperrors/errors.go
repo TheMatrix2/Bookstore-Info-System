@@ -2,10 +2,9 @@ package apperrors
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
 
+	pkgerrors "github.com/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,11 +42,11 @@ func RespondeError(c *gin.Context, err error) {
 	var appErr *AppError
 	if errors.As(err, &appErr) {
 		if appErr.Err != nil {
-			log.Printf("internal error: %v", appErr.Err)
+			c.Error(pkgerrors.WithStack(appErr.Err))
 		}
 		c.JSON(appErr.Code, gin.H{"error": appErr.Message})
 		return
 	}
-	log.Printf("unexpected error: %v", err)
-	c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("internal server error: %v", err)})
+	c.Error(pkgerrors.WithStack(err))
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 }
