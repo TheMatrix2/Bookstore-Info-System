@@ -2,6 +2,7 @@ package apperrors
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -48,5 +49,5 @@ func RespondeError(c *gin.Context, err error) {
 		return
 	}
 	log.Printf("unexpected error: %v", err)
-	c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("internal server error: %v", err)})
 }
