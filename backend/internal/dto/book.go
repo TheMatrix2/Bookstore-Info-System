@@ -13,12 +13,12 @@ type BookInput struct {
 }
 
 // BookFilter supports advanced filtering; all fields are optional.
-// Array fields (AuthorIDs, CategoryIDs) are passed as repeated query params:
-//   ?author_ids=uuid1&author_ids=uuid2
+// Array fields (AuthorIDs, CategoryIDs) are passed as a single comma-separated param:
+//   ?author_ids=uuid1,uuid2&category_ids=uuid3,uuid4
 // SortBy accepted values: price_asc, price_desc, title_asc, title_desc, newest
 type BookFilter struct {
-	AuthorIDs   []string `form:"author_ids"`
-	CategoryIDs []string `form:"category_ids"`
+	AuthorIDs   string   `form:"author_ids"`
+	CategoryIDs string   `form:"category_ids"`
 	PublisherID *string  `form:"publisher_id"`
 	MinPrice    *float64 `form:"min_price"`
 	MaxPrice    *float64 `form:"max_price"`

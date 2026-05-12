@@ -37,7 +37,7 @@ export default function CategoriesAdminPage() {
     setEditing(cat); setCatName(cat.name); setFormError(""); setShowModal(true);
   }
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true); setFormError("");
     try {

@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Container, Row, Col, Card, Badge, Button, Form,
   Spinner, Alert, InputGroup, Offcanvas,
 } from "react-bootstrap";
 import { apiFetch } from "../../../shared/api";
-import { mapBookFromAPI, type Book, type BookFilter } from "../../../mappers/book";
+import { mapBookFromAPI, type Book } from "../../../mappers/book";
 import { mapAuthorFromApi } from "../../../mappers/author";
 import type Author from "../../../mappers/author";
 import { mapPublisherFromApi } from "../../../mappers/publisher";
@@ -29,8 +30,14 @@ const SORT_OPTIONS = [
   { value: "title_desc", label: "Название: Я–А" },
 ];
 
+function buildApiQuery(params: URLSearchParams): string {
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
+
 export default function BooksPage() {
   const { token } = useAuthStore();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [books, setBooks] = useState<Book[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -43,54 +50,81 @@ export default function BooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [showFilter, setShowFilter] = useState(false);
 
-  // filter state
-  const [search, setSearch] = useState("");
-  const [selectedAuthorIds, setSelectedAuthorIds] = useState<string[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedPublisherId, setSelectedPublisherId] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [inStock, setInStock] = useState(false);
-  const [sortBy, setSortBy] = useState("");
+  // applied state — drives fetch and URL
+  const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
+  const [sortBy, setSortBy] = useState(() => searchParams.get("sort_by") ?? "");
+  const [appliedAuthorIds, setAppliedAuthorIds] = useState<string[]>(() =>
+    searchParams.get("author_ids")?.split(",").filter(Boolean) ?? []
+  );
+  const [appliedCategoryIds, setAppliedCategoryIds] = useState<string[]>(() =>
+    searchParams.get("category_ids")?.split(",").filter(Boolean) ?? []
+  );
+  const [appliedPublisherId, setAppliedPublisherId] = useState(
+    () => searchParams.get("publisher_id") ?? ""
+  );
+  const [appliedMinPrice, setAppliedMinPrice] = useState(
+    () => searchParams.get("min_price") ?? ""
+  );
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState(
+    () => searchParams.get("max_price") ?? ""
+  );
+  const [appliedInStock, setAppliedInStock] = useState(
+    () => searchParams.get("in_stock") === "true"
+  );
 
-  const buildQueryString = useCallback((filter: BookFilter): string => {
-    const params = new URLSearchParams();
-    if (filter.search) params.append("search", filter.search);
-    if (filter.publisher_id) params.append("publisher_id", filter.publisher_id);
-    if (filter.min_price !== undefined) params.append("min_price", String(filter.min_price));
-    if (filter.max_price !== undefined) params.append("max_price", String(filter.max_price));
-    if (filter.in_stock) params.append("in_stock", "true");
-    if (filter.sort_by) params.append("sort_by", filter.sort_by);
-    (filter.author_ids ?? []).forEach((id) => params.append("author_ids", id));
-    (filter.category_ids ?? []).forEach((id) => params.append("category_ids", id));
-    return params.toString();
-  }, []);
+  // draft state — offcanvas only, committed on Apply
+  const [draftAuthorIds, setDraftAuthorIds] = useState<string[]>(appliedAuthorIds);
+  const [draftCategoryIds, setDraftCategoryIds] = useState<string[]>(appliedCategoryIds);
+  const [draftPublisherId, setDraftPublisherId] = useState(appliedPublisherId);
+  const [draftMinPrice, setDraftMinPrice] = useState(appliedMinPrice);
+  const [draftMaxPrice, setDraftMaxPrice] = useState(appliedMaxPrice);
+  const [draftInStock, setDraftInStock] = useState(appliedInStock);
 
-  const fetchBooks = useCallback(async () => {
+  // sync URL whenever applied state changes
+  const syncUrl = useCallback((
+    s: string, sb: string,
+    authorIds: string[], categoryIds: string[],
+    publisherId: string, minP: string, maxP: string, inS: boolean,
+  ) => {
+    const p = new URLSearchParams();
+    if (s) p.set("search", s);
+    if (sb) p.set("sort_by", sb);
+    if (authorIds.length) p.set("author_ids", authorIds.join(","));
+    if (categoryIds.length) p.set("category_ids", categoryIds.join(","));
+    if (publisherId) p.set("publisher_id", publisherId);
+    if (minP) p.set("min_price", minP);
+    if (maxP) p.set("max_price", maxP);
+    if (inS) p.set("in_stock", "true");
+    setSearchParams(p, { replace: true });
+  }, [setSearchParams]);
+
+  const fetchBooks = useCallback(async (
+    s: string, sb: string,
+    authorIds: string[], categoryIds: string[],
+    publisherId: string, minP: string, maxP: string, inS: boolean,
+  ) => {
     setLoading(true);
     setError("");
     try {
-      const filter: BookFilter = {
-        search: search || undefined,
-        publisher_id: selectedPublisherId || undefined,
-        min_price: minPrice ? parseFloat(minPrice) : undefined,
-        max_price: maxPrice ? parseFloat(maxPrice) : undefined,
-        in_stock: inStock || undefined,
-        sort_by: sortBy || undefined,
-        author_ids: selectedAuthorIds.length ? selectedAuthorIds : undefined,
-        category_ids: selectedCategoryIds.length ? selectedCategoryIds : undefined,
-      };
-      const qs = buildQueryString(filter);
-      const raw = await apiFetch(`/books${qs ? `?${qs}` : ""}`);
+      const p = new URLSearchParams();
+      if (s) p.set("search", s);
+      if (sb) p.set("sort_by", sb);
+      if (authorIds.length) p.set("author_ids", authorIds.join(","));
+      if (categoryIds.length) p.set("category_ids", categoryIds.join(","));
+      if (publisherId) p.set("publisher_id", publisherId);
+      if (minP) p.set("min_price", minP);
+      if (maxP) p.set("max_price", maxP);
+      if (inS) p.set("in_stock", "true");
+      const raw = await apiFetch(`/books${buildApiQuery(p)}`);
       setBooks((raw ?? []).map(mapBookFromAPI));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка загрузки");
     } finally {
       setLoading(false);
     }
-  }, [search, selectedAuthorIds, selectedCategoryIds, selectedPublisherId, minPrice, maxPrice, inStock, sortBy, buildQueryString]);
+  }, []);
 
-  // load filter data once
+  // load filter reference data once
   useEffect(() => {
     Promise.all([
       apiFetch("/authors"),
@@ -103,33 +137,76 @@ export default function BooksPage() {
     }).catch(() => {/* non-critical */});
   }, []);
 
+  // initial fetch from URL params
   useEffect(() => {
-    fetchBooks();
-  }, [fetchBooks]);
+    fetchBooks(search, sortBy, appliedAuthorIds, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function openFilter() {
+    setDraftAuthorIds(appliedAuthorIds);
+    setDraftCategoryIds(appliedCategoryIds);
+    setDraftPublisherId(appliedPublisherId);
+    setDraftMinPrice(appliedMinPrice);
+    setDraftMaxPrice(appliedMaxPrice);
+    setDraftInStock(appliedInStock);
+    setShowFilter(true);
+  }
+
+  function applyFilters() {
+    setAppliedAuthorIds(draftAuthorIds);
+    setAppliedCategoryIds(draftCategoryIds);
+    setAppliedPublisherId(draftPublisherId);
+    setAppliedMinPrice(draftMinPrice);
+    setAppliedMaxPrice(draftMaxPrice);
+    setAppliedInStock(draftInStock);
+    syncUrl(search, sortBy, draftAuthorIds, draftCategoryIds, draftPublisherId, draftMinPrice, draftMaxPrice, draftInStock);
+    fetchBooks(search, sortBy, draftAuthorIds, draftCategoryIds, draftPublisherId, draftMinPrice, draftMaxPrice, draftInStock);
+    setShowFilter(false);
+  }
+
+  function handleSearch() {
+    syncUrl(search, sortBy, appliedAuthorIds, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+    fetchBooks(search, sortBy, appliedAuthorIds, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+  }
+
+  function handleSortChange(value: string) {
+    setSortBy(value);
+    syncUrl(search, value, appliedAuthorIds, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+    fetchBooks(search, value, appliedAuthorIds, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+  }
+
+  function handleReset() {
+    setSearch("");
+    setSortBy("");
+    setAppliedAuthorIds([]);
+    setAppliedCategoryIds([]);
+    setAppliedPublisherId("");
+    setAppliedMinPrice("");
+    setAppliedMaxPrice("");
+    setAppliedInStock(false);
+    setDraftAuthorIds([]);
+    setDraftCategoryIds([]);
+    setDraftPublisherId("");
+    setDraftMinPrice("");
+    setDraftMaxPrice("");
+    setDraftInStock(false);
+    setSearchParams({}, { replace: true });
+    fetchBooks("", "", [], [], "", "", "", false);
+  }
 
   function toggleMultiSelect(id: string, list: string[], setter: (v: string[]) => void) {
     setter(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
   }
 
-  function handleReset() {
-    setSearch("");
-    setSelectedAuthorIds([]);
-    setSelectedCategoryIds([]);
-    setSelectedPublisherId("");
-    setMinPrice("");
-    setMaxPrice("");
-    setInStock(false);
-    setSortBy("");
-  }
-
   const activeFiltersCount = [
     search,
-    selectedAuthorIds.length > 0,
-    selectedCategoryIds.length > 0,
-    selectedPublisherId,
-    minPrice,
-    maxPrice,
-    inStock,
+    appliedAuthorIds.length > 0,
+    appliedCategoryIds.length > 0,
+    appliedPublisherId,
+    appliedMinPrice,
+    appliedMaxPrice,
+    appliedInStock,
     sortBy,
   ].filter(Boolean).length;
 
@@ -144,13 +221,13 @@ export default function BooksPage() {
               placeholder="Поиск по названию..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && fetchBooks()}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
-            <Button variant="outline-secondary" onClick={fetchBooks}>🔍</Button>
+            <Button variant="outline-secondary" onClick={handleSearch}>🔍</Button>
           </InputGroup>
           <Button
             variant="outline-primary"
-            onClick={() => setShowFilter(true)}
+            onClick={openFilter}
           >
             Фильтры {activeFiltersCount > 0 && <Badge bg="primary" className="ms-1">{activeFiltersCount}</Badge>}
           </Button>
@@ -162,7 +239,7 @@ export default function BooksPage() {
         <Form.Select
           style={{ maxWidth: 260 }}
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(e) => handleSortChange(e.target.value)}
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -179,39 +256,56 @@ export default function BooksPage() {
       </div>
 
       {/* Active filter chips */}
-      {(selectedAuthorIds.length > 0 || selectedCategoryIds.length > 0 || selectedPublisherId) && (
+      {(appliedAuthorIds.length > 0 || appliedCategoryIds.length > 0 || appliedPublisherId) && (
         <div className="d-flex flex-wrap gap-1 mb-3">
-          {selectedAuthorIds.map((id) => {
+          {appliedAuthorIds.map((id) => {
             const a = authors.find((x) => x.id === id);
             return a ? (
               <Badge
                 key={id} bg="secondary" className="d-flex align-items-center gap-1"
                 style={{ cursor: "pointer", fontWeight: 400 }}
-                onClick={() => setSelectedAuthorIds(selectedAuthorIds.filter((x) => x !== id))}
+                onClick={() => {
+                  const next = appliedAuthorIds.filter((x) => x !== id);
+                  setAppliedAuthorIds(next);
+                  setDraftAuthorIds(next);
+                  syncUrl(search, sortBy, next, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+                  fetchBooks(search, sortBy, next, appliedCategoryIds, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+                }}
               >
                 {a.surname} {a.name} ×
               </Badge>
             ) : null;
           })}
-          {selectedCategoryIds.map((id) => {
+          {appliedCategoryIds.map((id) => {
             const c = categories.find((x) => x.id === id);
             return c ? (
               <Badge
                 key={id} bg="info" text="dark" className="d-flex align-items-center gap-1"
                 style={{ cursor: "pointer", fontWeight: 400 }}
-                onClick={() => setSelectedCategoryIds(selectedCategoryIds.filter((x) => x !== id))}
+                onClick={() => {
+                  const next = appliedCategoryIds.filter((x) => x !== id);
+                  setAppliedCategoryIds(next);
+                  setDraftCategoryIds(next);
+                  syncUrl(search, sortBy, appliedAuthorIds, next, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+                  fetchBooks(search, sortBy, appliedAuthorIds, next, appliedPublisherId, appliedMinPrice, appliedMaxPrice, appliedInStock);
+                }}
               >
                 {c.name} ×
               </Badge>
             ) : null;
           })}
-          {selectedPublisherId && (
+          {appliedPublisherId && (
             <Badge
               bg="warning" text="dark" className="d-flex align-items-center gap-1"
               style={{ cursor: "pointer", fontWeight: 400 }}
-              onClick={() => setSelectedPublisherId("")}
+              onClick={() => {
+                setAppliedPublisherId("");
+                setDraftPublisherId("");
+                syncUrl(search, sortBy, appliedAuthorIds, appliedCategoryIds, "", appliedMinPrice, appliedMaxPrice, appliedInStock);
+                fetchBooks(search, sortBy, appliedAuthorIds, appliedCategoryIds, "", appliedMinPrice, appliedMaxPrice, appliedInStock);
+              }}
             >
-              {publishers.find((p) => p.id === selectedPublisherId)?.name ?? selectedPublisherId} ×
+              {publishers.find((p) => p.id === appliedPublisherId)?.name ?? appliedPublisherId} ×
             </Badge>
           )}
         </div>
@@ -284,12 +378,12 @@ export default function BooksPage() {
             <h6 className="fw-semibold mb-2">Цена (₽)</h6>
             <div className="d-flex gap-2">
               <Form.Control
-                type="number" placeholder="От" value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)} min={0}
+                type="number" placeholder="От" value={draftMinPrice}
+                onChange={(e) => setDraftMinPrice(e.target.value)} min={0}
               />
               <Form.Control
-                type="number" placeholder="До" value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)} min={0}
+                type="number" placeholder="До" value={draftMaxPrice}
+                onChange={(e) => setDraftMaxPrice(e.target.value)} min={0}
               />
             </div>
           </div>
@@ -300,8 +394,8 @@ export default function BooksPage() {
               type="switch"
               id="in-stock-switch"
               label="Только в наличии"
-              checked={inStock}
-              onChange={(e) => setInStock(e.target.checked)}
+              checked={draftInStock}
+              onChange={(e) => setDraftInStock(e.target.checked)}
             />
           </div>
 
@@ -316,8 +410,8 @@ export default function BooksPage() {
                     type="checkbox"
                     id={`author-${a.id}`}
                     label={`${a.surname} ${a.name}`}
-                    checked={selectedAuthorIds.includes(a.id)}
-                    onChange={() => toggleMultiSelect(a.id, selectedAuthorIds, setSelectedAuthorIds)}
+                    checked={draftAuthorIds.includes(a.id)}
+                    onChange={() => toggleMultiSelect(a.id, draftAuthorIds, setDraftAuthorIds)}
                   />
                 ))}
               </div>
@@ -335,8 +429,8 @@ export default function BooksPage() {
                     type="checkbox"
                     id={`cat-${c.id}`}
                     label={c.name}
-                    checked={selectedCategoryIds.includes(c.id)}
-                    onChange={() => toggleMultiSelect(c.id, selectedCategoryIds, setSelectedCategoryIds)}
+                    checked={draftCategoryIds.includes(c.id)}
+                    onChange={() => toggleMultiSelect(c.id, draftCategoryIds, setDraftCategoryIds)}
                   />
                 ))}
               </div>
@@ -348,8 +442,8 @@ export default function BooksPage() {
             <div className="mb-4">
               <h6 className="fw-semibold mb-2">Издательство</h6>
               <Form.Select
-                value={selectedPublisherId}
-                onChange={(e) => setSelectedPublisherId(e.target.value)}
+                value={draftPublisherId}
+                onChange={(e) => setDraftPublisherId(e.target.value)}
               >
                 <option value="">Все</option>
                 {publishers.map((p) => (
@@ -360,11 +454,18 @@ export default function BooksPage() {
           )}
 
           <div className="d-grid gap-2">
-            <Button variant="primary" onClick={() => { setShowFilter(false); fetchBooks(); }}>
+            <Button variant="primary" onClick={applyFilters}>
               Применить
             </Button>
-            <Button variant="outline-secondary" onClick={handleReset}>
-              Сбросить всё
+            <Button variant="outline-secondary" onClick={() => {
+              setDraftAuthorIds([]);
+              setDraftCategoryIds([]);
+              setDraftPublisherId("");
+              setDraftMinPrice("");
+              setDraftMaxPrice("");
+              setDraftInStock(false);
+            }}>
+              Сбросить в панели
             </Button>
           </div>
         </Offcanvas.Body>

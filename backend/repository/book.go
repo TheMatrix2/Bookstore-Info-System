@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/dto"
 	"github.com/TheMatrix2/Bookstore-Info-System/backend/internal/models"
@@ -16,6 +17,20 @@ type BookRepository struct {
 
 func NewBookRepository(db *bun.DB) *BookRepository {
 	return &BookRepository{db: db}
+}
+
+func splitCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if t := strings.TrimSpace(p); t != "" {
+			out = append(out, t)
+		}
+	}
+	return out
 }
 
 func parseUUIDs(raw []string) []uuid.UUID {
@@ -79,14 +94,14 @@ func (r *BookRepository) GetAll(ctx context.Context, filter dto.BookFilter) ([]m
 		Relation("Publisher").
 		Relation("Categories")
 
-	authorUUIDs := parseUUIDs(filter.AuthorIDs)
+	authorUUIDs := parseUUIDs(splitCSV(filter.AuthorIDs))
 	if len(authorUUIDs) > 0 {
 		query = query.
 			Join("JOIN book_to_author bta ON bta.book_id = \"book\".id").
 			Where("bta.author_id IN (?)", bun.In(authorUUIDs))
 	}
 
-	categoryUUIDs := parseUUIDs(filter.CategoryIDs)
+	categoryUUIDs := parseUUIDs(splitCSV(filter.CategoryIDs))
 	if len(categoryUUIDs) > 0 {
 		query = query.
 			Join("JOIN book_to_category btc ON btc.book_id = \"book\".id").
